@@ -1,0 +1,20 @@
+[package]
+name = "nexus-one-app"
+version = "0.1.0"
+edition = "2021"
+description = "Application iPhone (Rust/Dioxus) de configuration de la manette Nexus One"
+
+[dependencies]
+controller-core = { path = "../controller-core" }
+dioxus = { version = "0.6", features = ["mobile"] }
+btleplug = "0.11"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"] }
+futures = "0.3"
+uuid = "1"
+heapless = "0.8"
+anyhow = "1"
+log = "0.4"
+
+[package.metadata.bundle]
+name = "Nexus One"
+identifier = "com.nexus.one.config"

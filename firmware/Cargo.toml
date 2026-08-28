@@ -1,0 +1,33 @@
+[package]
+name = "nexus-one-firmware"
+version = "0.1.0"
+edition = "2021"
+description = "Firmware ESP32 de la manette une main Nexus One (Switch + PC, tout en Rust)"
+
+[[bin]]
+name = "nexus-one-firmware"
+harness = false
+
+[profile.release]
+opt-level = "s"
+lto = true
+
+[profile.dev]
+debug = true
+opt-level = "z"
+
+[dependencies]
+controller-core = { path = "../controller-core", default-features = false }
+log = "0.4"
+anyhow = "1"
+esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver"] }
+esp-idf-hal = "0.45"
+esp-idf-sys = { version = "0.36", features = ["binstart"] }
+heapless = "0.8"
+postcard = { version = "1", default-features = false }
+smart-leds = "0.4"
+ws2812-esp32-rmt-driver = { version = "0.12", features = ["smart-leds-trait"] }
+embedded-svc = "0.28"
+
+[build-dependencies]
+embuild = "0.33"
