@@ -37,6 +37,20 @@ partitions OTA (2 slots) dans `partitions.csv`.
 3. « Pro Controller » apparaît ; la LED passe fixe une fois connecté et
    les LEDs 1..4 indiquent le numéro de joueur.
 
+## Limites connues, à valider sur carte
+
+- **Mode PC + service de configuration** : le HID BLE (`esp_hid`) et le
+  service GATT de config enregistrent chacun des callbacks GATTS/GAP
+  Bluedroid globaux ; ils peuvent se marcher dessus (l'un des deux devient
+  sourd) et se partagent la même publicité BLE. À valider en mode PC ; au
+  besoin, ne démarrer le service de config qu'en mode Switch.
+- **Rapport court 0x3F** : l'ordre exact des bits boutons est une
+  approximation raisonnable du format documenté ; à vérifier sur l'écran
+  d'appairage de la console.
+- **Longueurs de rapports** : le report map déclare les entrées vendeur à
+  63 octets et le firmware envoie des payloads bourrés à cette taille pour
+  satisfaire la vérification d'`esp_hid` ; à confirmer sur cible.
+
 ## État d'avancement
 
 - `controller-core` (mapping, turbo, macros, stats, protocole Pro

@@ -18,7 +18,7 @@ use bt::BtMode;
 use controller_core::buttons::PhysicalInput;
 use controller_core::engine::{Engine, InputFrame};
 use controller_core::procon::{ProconIdentity, ProconProtocol};
-use controller_core::report::{pack_pc_report, pack_standard_report};
+use controller_core::report::{pack_pc_report, pack_short_report, pack_standard_report};
 use esp_idf_hal::adc::attenuation::DB_11;
 use esp_idf_hal::adc::oneshot::config::AdcChannelConfig;
 use esp_idf_hal::adc::oneshot::{AdcChannelDriver, AdcDriver};
@@ -157,15 +157,22 @@ fn main() -> anyhow::Result<()> {
             let _ = haptics.play_effect(effect);
         }
 
-        // 3. Sortie HID.
+        // 3. Sortie HID. L'overlay LED est décidé ici, batterie comprise :
+        // un `set_overlay` inconditionnel écraserait l'alerte batterie posée
+        // ailleurs avant même le rendu à 50 Hz.
+        let overlay_for = |connected: bool| {
+            if battery_percent <= 10 {
+                leds::StatusOverlay::LowBattery
+            } else if connected {
+                leds::StatusOverlay::None
+            } else {
+                leds::StatusOverlay::Pairing
+            }
+        };
         match mode {
             BtMode::Switch => {
                 let connected = bt::procon::Procon::is_connected();
-                leds.set_overlay(if connected {
-                    leds::StatusOverlay::None
-                } else {
-                    leds::StatusOverlay::Pairing
-                });
+                leds.set_overlay(overlay_for(connected));
 
                 // Rapports de sortie de la console (rumble, subcommands).
                 if let Some(p) = &procon {
@@ -177,9 +184,12 @@ fn main() -> anyhow::Result<()> {
                             battery::percent_to_procon_level(battery_percent),
                         );
                         if let Some(r) = reply {
+                            // Bourré à 63 octets : le composant esp_hid
+                            // vérifie la longueur contre le report map, qui
+                            // déclare les entrées vendeur à 63 octets.
                             let _ = bt::procon::Procon::send_input_report(
                                 r.report_id,
-                                &r.data[..r.len],
+                                &r.data[..63],
                             );
                         }
                         if let Some(amp) = fx.rumble_amplitude {
@@ -191,30 +201,32 @@ fn main() -> anyhow::Result<()> {
                     }
                 }
 
-                // Rapport 0x30 à ~66 Hz une fois le mode full activé.
-                if connected
-                    && procon_proto.input_mode == 0x30
-                    && now_ms.wrapping_sub(last_report_ms) >= 15
-                {
+                // Rapports d'entrée à ~66 Hz : 0x30 (complet, 63 octets
+                // déclarés au report map) une fois le mode full demandé,
+                // sinon 0x3F (court) — l'écran d'appairage de la console
+                // s'appuie sur ces rapports simples.
+                if connected && now_ms.wrapping_sub(last_report_ms) >= 15 {
                     last_report_ms = now_ms;
-                    report_timer = report_timer.wrapping_add(1);
-                    let mut buf = [0u8; 48];
-                    pack_standard_report(
-                        &out.state,
-                        report_timer,
-                        battery::percent_to_procon_level(battery_percent),
-                        &mut buf,
-                    );
-                    let _ = bt::procon::Procon::send_input_report(0x30, &buf);
+                    if procon_proto.input_mode == 0x30 {
+                        report_timer = report_timer.wrapping_add(1);
+                        let mut buf = [0u8; 63];
+                        pack_standard_report(
+                            &out.state,
+                            report_timer,
+                            battery::percent_to_procon_level(battery_percent),
+                            &mut buf,
+                        );
+                        let _ = bt::procon::Procon::send_input_report(0x30, &buf);
+                    } else {
+                        let mut buf = [0u8; controller_core::report::SHORT_REPORT_LEN];
+                        pack_short_report(&out.state, &mut buf);
+                        let _ = bt::procon::Procon::send_input_report(0x3F, &buf);
+                    }
                 }
             }
             BtMode::Pc => {
                 let connected = bt::pc_hid::PcHid::is_connected();
-                leds.set_overlay(if connected {
-                    leds::StatusOverlay::None
-                } else {
-                    leds::StatusOverlay::Pairing
-                });
+                leds.set_overlay(overlay_for(connected));
                 if connected && now_ms.wrapping_sub(last_report_ms) >= 10 {
                     last_report_ms = now_ms;
                     let mut buf = [0u8; controller_core::report::PC_REPORT_LEN];
@@ -224,14 +236,12 @@ fn main() -> anyhow::Result<()> {
             }
         }
 
-        // 4. Batterie (toutes les 5 s).
+        // 4. Batterie (toutes les 5 s) ; l'alerte LED correspondante est
+        // gérée par `overlay_for` à l'étape 3.
         if now_ms.wrapping_sub(last_battery_ms) >= 5000 {
             last_battery_ms = now_ms;
             battery_mv = battery::adc_to_battery_mv(adc.read(&mut vbat)?);
             battery_percent = battery::mv_to_percent(battery_mv);
-            if battery_percent <= 10 {
-                leds.set_overlay(leds::StatusOverlay::LowBattery);
-            }
         }
 
         // 5. Service de configuration (app iPhone).

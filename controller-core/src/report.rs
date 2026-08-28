@@ -139,24 +139,111 @@ pub fn pack_standard_report(state: &SwitchState, timer: u8, battery_level: u8, o
     // Octets 12..47 : IMU à zéro (accéléromètre/gyro non implémentés).
 }
 
-/// Rapport HID gamepad générique (mode PC) : 16 boutons + 4 axes 8 bits.
-/// Correspond au report descriptor de `firmware/src/pc_hid.rs`.
-pub const PC_REPORT_LEN: usize = 6;
+/// Rapport HID gamepad générique (mode PC) : 20 boutons (18 utilisés,
+/// 2 de bourrage) + 4 axes 8 bits. Correspond au report descriptor de
+/// `firmware/src/bt/pc_hid.rs`.
+pub const PC_REPORT_LEN: usize = 7;
 
 pub fn pack_pc_report(state: &SwitchState, out: &mut [u8]) {
     assert!(out.len() >= PC_REPORT_LEN);
-    // 18 boutons logiques → 16 bits (Home/Capture repliés sur 13/14).
-    let mut bits: u16 = (state.buttons & 0xFFFF) as u16;
-    if state.buttons & SwitchButton::DpadLeft.mask() != 0 {
-        bits |= 1 << 14;
-    }
-    if state.buttons & SwitchButton::DpadRight.mask() != 0 {
-        bits |= 1 << 15;
-    }
+    // Les 18 boutons logiques passent tels quels : le bouton HID n de l'hôte
+    // correspond au `SwitchButton` d'indice n-1, croix comprise (bits 14..17).
+    let bits = state.buttons & 0x3FFFF;
     out[0] = (bits & 0xFF) as u8;
-    out[1] = (bits >> 8) as u8;
-    out[2] = (state.lx >> 4) as u8;
-    out[3] = (state.ly >> 4) as u8;
-    out[4] = (state.rx >> 4) as u8;
-    out[5] = (state.ry >> 4) as u8;
+    out[1] = ((bits >> 8) & 0xFF) as u8;
+    out[2] = ((bits >> 16) & 0x03) as u8;
+    out[3] = (state.lx >> 4) as u8;
+    out[4] = (state.ly >> 4) as u8;
+    out[5] = (state.rx >> 4) as u8;
+    out[6] = (state.ry >> 4) as u8;
+}
+
+/// Rapport d'entrée court 0x3F (11 octets), envoyé tant que la console n'a
+/// pas demandé le mode 0x30 : l'écran « Changer le style/l'ordre » s'en sert
+/// pour afficher les appuis pendant l'appairage.
+///
+/// Format (dekuNukem) : 2 octets de boutons, 1 octet de hat, puis les deux
+/// sticks en 16 bits little-endian.
+pub const SHORT_REPORT_LEN: usize = 11;
+
+pub fn pack_short_report(state: &SwitchState, out: &mut [u8]) {
+    assert!(out.len() >= SHORT_REPORT_LEN);
+    for b in out[..SHORT_REPORT_LEN].iter_mut() {
+        *b = 0;
+    }
+
+    let mut b0 = 0u8;
+    if state.has(SwitchButton::B) {
+        b0 |= 0x01;
+    }
+    if state.has(SwitchButton::A) {
+        b0 |= 0x02;
+    }
+    if state.has(SwitchButton::Y) {
+        b0 |= 0x04;
+    }
+    if state.has(SwitchButton::X) {
+        b0 |= 0x08;
+    }
+    if state.has(SwitchButton::L) {
+        b0 |= 0x10;
+    }
+    if state.has(SwitchButton::R) {
+        b0 |= 0x20;
+    }
+    if state.has(SwitchButton::Zl) {
+        b0 |= 0x40;
+    }
+    if state.has(SwitchButton::Zr) {
+        b0 |= 0x80;
+    }
+    out[0] = b0;
+
+    let mut b1 = 0u8;
+    if state.has(SwitchButton::Minus) {
+        b1 |= 0x01;
+    }
+    if state.has(SwitchButton::Plus) {
+        b1 |= 0x02;
+    }
+    if state.has(SwitchButton::LStick) {
+        b1 |= 0x04;
+    }
+    if state.has(SwitchButton::RStick) {
+        b1 |= 0x08;
+    }
+    if state.has(SwitchButton::Home) {
+        b1 |= 0x10;
+    }
+    if state.has(SwitchButton::Capture) {
+        b1 |= 0x20;
+    }
+    out[1] = b1;
+
+    // Hat : 0 = haut, tourne dans le sens horaire, 8 = repos.
+    let up = state.has(SwitchButton::DpadUp);
+    let down = state.has(SwitchButton::DpadDown);
+    let left = state.has(SwitchButton::DpadLeft);
+    let right = state.has(SwitchButton::DpadRight);
+    out[2] = match (up, right, down, left) {
+        (true, false, false, false) => 0,
+        (true, true, false, false) => 1,
+        (false, true, false, false) => 2,
+        (false, true, true, false) => 3,
+        (false, false, true, false) => 4,
+        (false, false, true, true) => 5,
+        (false, false, false, true) => 6,
+        (true, false, false, true) => 7,
+        _ => 8,
+    };
+
+    // Sticks 12 bits recadrés sur 16 bits.
+    let lx = state.lx << 4;
+    let ly = state.ly << 4;
+    let rx = state.rx << 4;
+    let ry = state.ry << 4;
+    out[3..5].copy_from_slice(&lx.to_le_bytes());
+    out[5..7].copy_from_slice(&ly.to_le_bytes());
+    out[7..9].copy_from_slice(&rx.to_le_bytes());
+    out[9..11].copy_from_slice(&ry.to_le_bytes());
 }

@@ -144,19 +144,57 @@ fn App() -> Element {
     let mut stats = use_signal(|| Option::<Stats>::None);
     let tab = use_signal(|| Tab::Mapping);
 
-    // Tâche BLE : possède le client, exécute les commandes de l'UI.
+    // Tâche BLE : possède le client, exécute les commandes de l'UI et,
+    // entre deux commandes, reste à l'écoute des notifications spontanées
+    // (progression OTA) pour rafraîchir l'écran sans action de l'utilisateur.
     let ble = use_coroutine(move |mut rx: UnboundedReceiver<Cmd>| async move {
         let mut client: Option<BleClient> = None;
-        while let Some(cmd) = rx.next().await {
+        loop {
+            let cmd = if let Some(c) = client.as_mut() {
+                tokio::select! {
+                    cmd = rx.next() => cmd,
+                    ev = c.events.recv() => {
+                        if let Some(Response::OtaProgress(p)) = ev {
+                            conn.with_mut(|s| s.ota_progress = Some(p));
+                        }
+                        continue;
+                    }
+                }
+            } else {
+                rx.next().await
+            };
+            let Some(cmd) = cmd else { break };
+
             conn.with_mut(|c| {
                 c.busy = true;
                 c.error = None;
             });
             let result = handle_cmd(cmd, &mut client, &mut conn, &mut config, &mut stats).await;
+
+            // Une erreur peut signifier que la manette est éteinte ou a
+            // redémarré (fin d'OTA) : vérifier la liaison plutôt que de
+            // rester affiché « connectée ».
+            let mut lost = false;
+            if result.is_err() {
+                if let Some(c) = client.as_ref() {
+                    lost = !c.is_connected().await;
+                }
+            }
+            if lost {
+                client = None;
+                conn.with_mut(|s| {
+                    s.connected = false;
+                    s.ota_progress = None;
+                });
+            }
             conn.with_mut(|c| {
                 c.busy = false;
                 if let Err(e) = result {
-                    c.error = Some(e.to_string());
+                    c.error = Some(if lost {
+                        "Connexion perdue — la manette est-elle allumée ?".to_string()
+                    } else {
+                        e.to_string()
+                    });
                 }
             });
         }
@@ -419,14 +457,19 @@ fn StatsView(stats: Signal<Option<Stats>>, ble: Coroutine<Cmd>) -> Element {
                 }
                 {
                     let max = s.presses.iter().copied().max().unwrap_or(1).max(1);
+                    // Pourcentages en u64 : v × 100 déborderait un u32 pour
+                    // de très gros compteurs.
+                    let rows: Vec<(usize, u32, u64)> = (0..NUM_PHYSICAL)
+                        .map(|i| (i, s.presses[i], u64::from(s.presses[i]) * 100 / u64::from(max)))
+                        .collect();
                     rsx! {
-                        for i in 0..NUM_PHYSICAL {
+                        for (i, count, pct) in rows {
                             div { class: "row",
                                 span { style: "min-width: 45%", {physical_label(PhysicalInput::ALL[i])} }
                                 div { style: "flex:1",
-                                    div { class: "bar", style: "width:{s.presses[i] * 100 / max}%" }
+                                    div { class: "bar", style: "width:{pct}%" }
                                 }
-                                span { class: "muted", "{s.presses[i]}" }
+                                span { class: "muted", "{count}" }
                             }
                         }
                     }
@@ -486,12 +529,18 @@ fn SettingsView(
                     value: { format!("#{:02x}{:02x}{:02x}", cfg.leds.r, cfg.leds.g, cfg.leds.b) },
                     onchange: move |e| apply(&|c| {
                         let v = e.value();
-                        if let (Ok(r), Ok(g), Ok(b)) = (
-                            u8::from_str_radix(&v[1..3], 16),
-                            u8::from_str_radix(&v[3..5], 16),
-                            u8::from_str_radix(&v[5..7], 16),
-                        ) {
-                            c.leds.r = r; c.leds.g = g; c.leds.b = b;
+                        // Uniquement le format #rrggbb : tout autre valeur
+                        // (chaîne vide, nom de couleur) est ignorée.
+                        if v.len() == 7 && v.starts_with('#') {
+                            if let (Ok(r), Ok(g), Ok(b)) = (
+                                u8::from_str_radix(&v[1..3], 16),
+                                u8::from_str_radix(&v[3..5], 16),
+                                u8::from_str_radix(&v[5..7], 16),
+                            ) {
+                                c.leds.r = r;
+                                c.leds.g = g;
+                                c.leds.b = b;
+                            }
                         }
                     })
                 }
@@ -617,13 +666,6 @@ async fn handle_cmd(
     let Some(c) = client.as_mut() else {
         anyhow::bail!("non connecté");
     };
-
-    // Événements spontanés (progression OTA).
-    while let Ok(ev) = c.events.try_recv() {
-        if let Response::OtaProgress(p) = ev {
-            conn.with_mut(|s| s.ota_progress = Some(p));
-        }
-    }
 
     match cmd {
         Cmd::Connect => unreachable!(),
