@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = ["controller-core"]
+# Le firmware (cible xtensa-esp32-espidf) et l'app iOS (cible aarch64-apple-ios)
+# se compilent avec leurs propres toolchains — voir firmware/README.md et app-ios/README.md.
+exclude = ["firmware", "app-ios"]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+authors = ["Max Lestage"]

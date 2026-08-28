@@ -1,0 +1,10 @@
+[application]
+name = "nexus-one-app"
+default_platform = "ios"
+
+[bundle]
+identifier = "com.nexus.one.config"
+publisher = "Nexus"
+
+# NSBluetoothAlwaysUsageDescription est requis par iOS pour CoreBluetooth :
+# ajouté dans l'Info.plist généré (voir README).

@@ -1,0 +1,7 @@
+target/
+Cargo.lock
+!controller-core/Cargo.lock
+.embuild/
+*.bin
+.DS_Store
+app-ios/dist/
