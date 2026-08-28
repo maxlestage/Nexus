@@ -63,9 +63,22 @@ cd firmware && cargo run --release
 # App iPhone (voir app-ios/README.md)
 cd app-ios && dx build --platform ios --release
 
-# Site (Bun uniquement — voir web/README.md et web/DEPLOY.md)
-cd web && bun install && bun run build && bun run start
+# Site (Bun uniquement — voir web/README.md)
+bun install && bun run build && bun run start
 ```
+
+## Déploiement du site
+
+Le dépôt est déployable tel quel sur Heroku. Une seule commande n'est pas
+devinable et doit précéder le premier push — le buildpack Node officiel ne
+gère pas Bun :
+
+```bash
+heroku buildpacks:set https://github.com/jakeg/heroku-buildpack-bun -a VOTRE-APP
+git push heroku master
+```
+
+Détails et dépannage : [web/DEPLOY.md](web/DEPLOY.md).
 
 ## Matériel requis (résumé)
 

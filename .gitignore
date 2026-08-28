@@ -5,3 +5,5 @@ Cargo.lock
 *.bin
 .DS_Store
 app-ios/dist/
+node_modules/
+web/dist/
