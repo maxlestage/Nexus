@@ -1,0 +1,16 @@
+{
+  "name": "nexus-one-web",
+  "description": "Site mobile-first du projet Nexus One : manette de jeu une main pour Switch et PC.",
+  "repository": "https://github.com/maxlestage/Nexus",
+  "keywords": ["bun", "react", "typescript", "pwa", "accessibilité", "esp32"],
+  "stack": "heroku-24",
+  "buildpacks": [
+    { "url": "https://github.com/jakeg/heroku-buildpack-bun" }
+  ],
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" }
+  },
+  "healthchecks": [
+    { "type": "startup", "path": "/healthz" }
+  ]
+}
