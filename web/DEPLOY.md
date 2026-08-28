@@ -22,7 +22,9 @@ peut la remplacer.
 ## Mise en ligne complète
 
 Le dépôt entier est déployable tel quel : sa racine contient `package.json`,
-`Procfile` et `.bun-version`, que le buildpack Bun cherche à cet endroit.
+`Procfile`, `.bun-version`, `bun.lock` et `app.json` — l'unique source de
+vérité du déploiement, le buildpack Bun cherchant ces fichiers à la racine de
+ce qui est poussé.
 
 ```bash
 heroku create nexus-one                     # choisissez un nom libre
@@ -33,10 +35,11 @@ git push heroku master
 heroku open -a nexus-one
 ```
 
-Si votre branche locale s'appelle autrement que celle attendue par Heroku :
+Si votre branche locale s'appelle `main` (ou autre chose que `master`),
+poussez-la vers la branche que Heroku construit :
 
 ```bash
-git push heroku master:main      # adaptez selon le cas
+git push heroku main:master
 ```
 
 ## Mises à jour suivantes
@@ -66,17 +69,7 @@ heroku logs --tail -a nexus-one
 curl https://nexus-one-XXXX.herokuapp.com/healthz    # doit répondre « ok »
 ```
 
-`/healthz` sert aussi de sonde de démarrage, déclarée dans `app.json`.
-
-## Variante : ne pousser que le sous-dossier
-
-Si vous préférez qu'Heroku ne reçoive pas le code Rust, poussez uniquement
-`web/`. Les fichiers de déploiement présents à la racine deviennent alors
-inutiles, ceux de `web/` prennent le relais.
-
-```bash
-git subtree push --prefix web heroku master
-```
+`/healthz` sert aussi de sonde de démarrage, déclarée dans `app.json` à la racine du dépôt.
 
 ## Domaine personnalisé et HTTPS
 

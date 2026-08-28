@@ -54,8 +54,16 @@ const server = Bun.serve({
       return new Response("ok", { headers: { "Content-Type": "text/plain" } });
     }
 
+    // Un encodage pour-cent invalide (/%zz) ferait lever decodeURIComponent :
+    // c'est une requête malformée, pas une erreur serveur.
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(url.pathname);
+    } catch {
+      return new Response("Requête malformée", { status: 400 });
+    }
     // normalize neutralise les tentatives de remontée de dossier (../).
-    const rel = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
+    const rel = normalize(decoded).replace(/^(\.\.[/\\])+/, "");
     let file = Bun.file(join(DIST, rel));
 
     if (rel === "/" || rel === "\\" || !(await file.exists())) {
