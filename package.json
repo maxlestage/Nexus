@@ -1,0 +1,11 @@
+{
+  "name": "nexus-one",
+  "private": true,
+  "description": "Racine de déploiement : le site vit dans web/, ce fichier permet de pousser le dépôt entier sur Heroku.",
+  "workspaces": ["web"],
+  "scripts": {
+    "build": "bun run --cwd web build",
+    "start": "bun run web/server.ts",
+    "typecheck": "bun run --cwd web typecheck"
+  }
+}

@@ -6,7 +6,9 @@
  */
 import { join, normalize } from "node:path";
 
-const DIST = "dist";
+// Résolu depuis ce fichier : le serveur marche quel que soit le dossier courant
+// (Heroku démarre le Procfile depuis la racine du dépôt).
+const DIST = join(import.meta.dir, "dist");
 const port = Number(process.env.PORT ?? 3000);
 
 const IMMUTABLE = /-[A-Za-z0-9]{6,}\.(js|css|woff2?)$/;
