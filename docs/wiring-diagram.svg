@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1000" width="1240" height="1000"
+     color="#2b3440" role="img"
+     aria-label="Schéma de câblage de la manette Nexus One : 16 boutons et un joystick reliés à un ESP32-WROOM-32, avec pilote haptique DRV2605L, bandeau WS2812B, et chaîne d'alimentation USB-C, TP4056, accu 18650, convertisseur MT3608.">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/>
+    </marker>
+  </defs>
+
+  <rect id="bg" x="0" y="0" width="1240" height="1000" fill="#f4f6f8"/>
+
+  <g font-family="'IBM Plex Sans', system-ui, -apple-system, sans-serif">
+
+    <!-- ================= CARTE ESP32 ================= -->
+    <rect x="470" y="110" width="300" height="620" rx="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    <text x="620" y="142" text-anchor="middle" font-size="16" font-weight="600" fill="currentColor">ESP32-WROOM-32</text>
+    <text x="620" y="161" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".65">DevKitC · Bluetooth Classic + BLE</text>
+    <line x1="486" y1="172" x2="754" y2="172" stroke="currentColor" stroke-width="1" opacity=".25"/>
+
+    <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="13" fill="currentColor">
+      <text x="484" y="192">32 · 33 · 25 · 26</text>
+      <text x="484" y="290">27 · 14 · 13 · 4</text>
+      <text x="484" y="378">5</text>
+      <text x="484" y="466">18 · 19 · 23 · 15</text>
+      <text x="484" y="564">0 · 39</text>
+      <text x="484" y="624">36</text>
+    </g>
+    <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="13" fill="currentColor" text-anchor="end">
+      <text x="756" y="184">34 · 35 · 17</text>
+      <text x="756" y="329">21 · 22</text>
+      <text x="756" y="474">16</text>
+    </g>
+
+    <line x1="486" y1="652" x2="754" y2="652" stroke="currentColor" stroke-width="1" opacity=".25"/>
+    <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="13" fill="currentColor">
+      <text x="492" y="684">5V/VIN</text>
+      <text x="602" y="684">GND</text>
+      <text x="676" y="684">3V3</text>
+    </g>
+    <text x="620" y="708" text-anchor="middle" font-size="11" fill="currentColor" opacity=".6">broches d'alimentation</text>
+
+    <!-- ================= GROUPES BOUTONS (gauche) ================= -->
+    <g fill="none" stroke="currentColor" stroke-width="2" opacity=".85">
+      <rect x="80" y="150" width="290" height="76" rx="8"/>
+      <rect x="80" y="248" width="290" height="76" rx="8"/>
+      <rect x="80" y="346" width="290" height="56" rx="8"/>
+      <rect x="80" y="424" width="290" height="76" rx="8"/>
+      <rect x="80" y="522" width="290" height="76" rx="8"/>
+    </g>
+    <g font-size="14.5" font-weight="600" fill="currentColor">
+      <text x="98" y="177">Pouce · 4 boutons</text>
+      <text x="98" y="275">Gâchettes · 4 boutons</text>
+      <text x="98" y="373">Paume · 1 bouton</text>
+      <text x="98" y="451">Système · 4 boutons</text>
+      <text x="98" y="549">Modificateurs · 2 boutons</text>
+    </g>
+    <g font-size="11.5" fill="currentColor" opacity=".7">
+      <text x="98" y="197">haut · droite · bas · gauche</text>
+      <text x="98" y="213">= X · A · B · Y</text>
+      <text x="98" y="295">index haut/bas · majeur haut/bas</text>
+      <text x="98" y="311">= R · ZR · L · ZL</text>
+      <text x="98" y="393">dans la poignée = clic stick droit</text>
+      <text x="98" y="471">+ · − · Home · Capture</text>
+      <text x="98" y="487">hors de la zone de repos du pouce</text>
+      <text x="98" y="569">TURBO (GPIO0) · SHIFT (GPIO39)</text>
+      <text x="98" y="585">SHIFT : pull-up externe 10 kΩ — détail B</text>
+    </g>
+
+    <g stroke="#3f8ae0" stroke-width="2.5" fill="none" marker-end="url(#ah)">
+      <line x1="370" y1="188" x2="464" y2="188"/>
+      <line x1="370" y1="286" x2="464" y2="286"/>
+      <line x1="370" y1="374" x2="464" y2="374"/>
+      <line x1="370" y1="462" x2="464" y2="462"/>
+      <line x1="370" y1="560" x2="464" y2="560"/>
+    </g>
+    <g font-family="'IBM Plex Mono', ui-monospace, monospace" font-size="10.5" fill="#3f8ae0" text-anchor="middle">
+      <text x="417" y="180">4 fils</text>
+      <text x="417" y="278">4 fils</text>
+      <text x="417" y="366">1 fil</text>
+      <text x="417" y="454">4 fils</text>
+      <text x="417" y="552">2 fils</text>
+    </g>
+
+    <!-- mesure batterie : renvoi vers le détail A -->
+    <line x1="398" y1="620" x2="464" y2="620" stroke="#0ea5c6" stroke-width="2.5" marker-end="url(#ah)"/>
+    <text x="392" y="617" text-anchor="end" font-size="11.5" font-weight="600" fill="#0ea5c6">pont diviseur → B+ accu</text>
+    <text x="392" y="633" text-anchor="end" font-size="11" fill="#0ea5c6" opacity=".8">détail A</text>
+
+    <!-- bus de masse gauche (guirlande) -->
+    <line x1="42" y1="188" x2="42" y2="912" stroke="currentColor" stroke-width="3"/>
+    <g stroke="currentColor" stroke-width="2">
+      <line x1="42" y1="188" x2="80" y2="188"/>
+      <line x1="42" y1="286" x2="80" y2="286"/>
+      <line x1="42" y1="374" x2="80" y2="374"/>
+      <line x1="42" y1="462" x2="80" y2="462"/>
+      <line x1="42" y1="560" x2="80" y2="560"/>
+    </g>
+    <g fill="currentColor">
+      <circle cx="42" cy="286" r="3.5"/><circle cx="42" cy="374" r="3.5"/>
+      <circle cx="42" cy="462" r="3.5"/><circle cx="42" cy="560" r="3.5"/>
+    </g>
+    <text x="98" y="655" font-size="12.5" font-weight="600" fill="currentColor">Masse commune</text>
+    <text x="98" y="672" font-size="11" fill="currentColor" opacity=".7">un seul fil en guirlande relie</text>
+    <text x="98" y="687" font-size="11" fill="currentColor" opacity=".7">la 2ᵉ patte de tous les boutons</text>
+
+    <!-- ================= PÉRIPHÉRIQUES (droite) ================= -->
+    <g fill="none" stroke="currentColor" stroke-width="2" opacity=".85">
+      <rect x="870" y="140" width="300" height="80" rx="8"/>
+      <rect x="870" y="280" width="300" height="90" rx="8"/>
+      <rect x="870" y="430" width="300" height="80" rx="8"/>
+    </g>
+    <g font-size="14.5" font-weight="600" fill="currentColor">
+      <text x="888" y="167">Joystick 2 axes + clic</text>
+      <text x="888" y="307">DRV2605L · haptique</text>
+      <text x="888" y="457">Bandeau WS2812B ×8</text>
+    </g>
+    <g font-size="11.5" fill="currentColor" opacity=".7">
+      <text x="888" y="187">X → GPIO34 · Y → GPIO35 (ADC1)</text>
+      <text x="888" y="203">clic → GPIO17 · alimenté en 3,3 V</text>
+      <text x="888" y="327">I2C 0x5A · SDA 21 · SCL 22 · 3,3 V</text>
+      <text x="888" y="343">OUT+/OUT− → moteur vibreur ERM 3 V</text>
+      <text x="888" y="359">le moteur ne va jamais sur un GPIO</text>
+      <text x="888" y="477">données GPIO16 via résistance 330 Ω</text>
+      <text x="888" y="493">alim 5 V + condensateur 1000 µF</text>
+    </g>
+
+    <line x1="776" y1="180" x2="864" y2="180" stroke="#0ea5c6" stroke-width="2.5" marker-start="url(#ah)"/>
+    <text x="812" y="172" text-anchor="middle" font-size="10.5" font-family="'IBM Plex Mono', ui-monospace, monospace" fill="#0ea5c6">analog.</text>
+
+    <line x1="776" y1="325" x2="864" y2="325" stroke="#17a67f" stroke-width="2.5" marker-end="url(#ah)" marker-start="url(#ah)"/>
+    <text x="812" y="317" text-anchor="middle" font-size="10.5" font-family="'IBM Plex Mono', ui-monospace, monospace" fill="#17a67f">I2C</text>
+
+    <line x1="776" y1="470" x2="864" y2="470" stroke="#9d6bd8" stroke-width="2.5" marker-end="url(#ah)"/>
+    <text x="812" y="462" text-anchor="middle" font-size="10.5" font-family="'IBM Plex Mono', ui-monospace, monospace" fill="#9d6bd8">données</text>
+
+    <!-- 3,3 V : sortie ESP32 vers joystick et DRV2605 -->
+    <polyline points="690,736 690,772 845,772 845,204" fill="none" stroke="#e8890c" stroke-width="2.5"/>
+    <line x1="845" y1="204" x2="864" y2="204" stroke="#e8890c" stroke-width="2.5" marker-end="url(#ah)"/>
+    <line x1="845" y1="352" x2="864" y2="352" stroke="#e8890c" stroke-width="2.5" marker-end="url(#ah)"/>
+    <circle cx="845" cy="352" r="4" fill="#e8890c"/>
+    <text x="700" y="762" font-size="11.5" font-weight="600" fill="#e8890c">3,3 V (sortie de l'ESP32)</text>
+
+    <!-- bus de masse droit -->
+    <line x1="1200" y1="180" x2="1200" y2="912" stroke="currentColor" stroke-width="3"/>
+    <g stroke="currentColor" stroke-width="2">
+      <line x1="1170" y1="180" x2="1200" y2="180"/>
+      <line x1="1170" y1="325" x2="1200" y2="325"/>
+      <line x1="1170" y1="470" x2="1200" y2="470"/>
+    </g>
+    <g fill="currentColor">
+      <circle cx="1200" cy="325" r="3.5"/><circle cx="1200" cy="470" r="3.5"/>
+    </g>
+
+    <line x1="620" y1="736" x2="620" y2="912" stroke="currentColor" stroke-width="3"/>
+
+    <!-- ================= CHAÎNE D'ALIMENTATION ================= -->
+    <rect x="240" y="726" width="190" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+    <text x="335" y="750" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">Accu 18650</text>
+    <text x="335" y="768" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".7">3,7 V · 2600–3500 mAh</text>
+
+    <rect x="60" y="830" width="140" height="60" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+    <text x="130" y="856" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">USB-C</text>
+    <text x="130" y="874" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".7">charge 5 V</text>
+
+    <rect x="240" y="830" width="190" height="60" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+    <text x="335" y="856" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">TP4056</text>
+    <text x="335" y="874" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".7">avec protection · 1 A</text>
+
+    <rect x="470" y="830" width="130" height="60" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+    <text x="535" y="856" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">Interrupteur</text>
+    <text x="535" y="874" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".7">marche / arrêt</text>
+
+    <rect x="640" y="830" width="180" height="60" rx="8" fill="none" stroke="currentColor" stroke-width="2" opacity=".85"/>
+    <text x="730" y="856" text-anchor="middle" font-size="14" font-weight="600" fill="currentColor">MT3608</text>
+    <text x="730" y="874" text-anchor="middle" font-size="11.5" fill="currentColor" opacity=".7">élévateur réglé à 5,0 V</text>
+
+    <line x1="200" y1="860" x2="234" y2="860" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+    <line x1="335" y1="830" x2="335" y2="788" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+    <text x="345" y="812" font-size="11" font-family="'IBM Plex Mono', ui-monospace, monospace" fill="#e5484d">B+ / B−</text>
+    <line x1="430" y1="860" x2="464" y2="860" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+    <text x="447" y="850" text-anchor="middle" font-size="10" font-family="'IBM Plex Mono', ui-monospace, monospace" fill="#e5484d">OUT</text>
+    <line x1="600" y1="860" x2="634" y2="860" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+
+    <polyline points="820,860 900,860 900,800 520,800 520,742" fill="none" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+    <text x="524" y="790" font-size="11.5" font-weight="600" fill="#e5484d">5 V → VIN</text>
+    <polyline points="900,860 1020,860 1020,516" fill="none" stroke="#e5484d" stroke-width="2.5" marker-end="url(#ah)"/>
+    <circle cx="900" cy="860" r="4" fill="#e5484d"/>
+    <text x="1032" y="660" font-size="11.5" font-weight="600" fill="#e5484d">5 V → LEDs</text>
+
+    <g stroke="currentColor" stroke-width="2">
+      <line x1="130" y1="890" x2="130" y2="912"/>
+      <line x1="335" y1="890" x2="335" y2="912"/>
+      <line x1="730" y1="890" x2="730" y2="912"/>
+    </g>
+
+    <line x1="42" y1="912" x2="1200" y2="912" stroke="currentColor" stroke-width="3.5"/>
+    <g fill="currentColor">
+      <circle cx="130" cy="912" r="4"/><circle cx="335" cy="912" r="4"/>
+      <circle cx="620" cy="912" r="4"/><circle cx="730" cy="912" r="4"/>
+    </g>
+    <text x="620" y="938" text-anchor="middle" font-size="12.5" font-weight="600" fill="currentColor">MASSE COMMUNE — toutes les masses sont reliées entre elles</text>
+
+    <!-- ================= LÉGENDE ================= -->
+    <g font-size="11.5" fill="currentColor">
+      <line x1="130" y1="972" x2="158" y2="972" stroke="#e5484d" stroke-width="3"/>
+      <text x="164" y="976">5 V</text>
+      <line x1="222" y1="972" x2="250" y2="972" stroke="#e8890c" stroke-width="3"/>
+      <text x="256" y="976">3,3 V</text>
+      <line x1="326" y1="972" x2="354" y2="972" stroke="currentColor" stroke-width="3"/>
+      <text x="360" y="976">masse</text>
+      <line x1="436" y1="972" x2="464" y2="972" stroke="#3f8ae0" stroke-width="3"/>
+      <text x="470" y="976">bouton → GPIO</text>
+      <line x1="606" y1="972" x2="634" y2="972" stroke="#17a67f" stroke-width="3"/>
+      <text x="640" y="976">I2C</text>
+      <line x1="702" y1="972" x2="730" y2="972" stroke="#9d6bd8" stroke-width="3"/>
+      <text x="736" y="976">données LED</text>
+      <line x1="866" y1="972" x2="894" y2="972" stroke="#0ea5c6" stroke-width="3"/>
+      <text x="900" y="976">analogique (ADC)</text>
+    </g>
+  </g>
+</svg>

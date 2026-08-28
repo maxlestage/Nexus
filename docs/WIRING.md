@@ -1,5 +1,14 @@
 # Câblage
 
+![Schéma de câblage complet](wiring-diagram.svg)
+
+*Vue d'ensemble : les 16 boutons à gauche, les périphériques à droite, l'alimentation
+en bas. Les couleurs des traits correspondent aux fonctions des fils.*
+
+![Détails de câblage](wiring-details.svg)
+
+*Les trois montages qui demandent de l'attention ; le reste est répétitif.*
+
 Tous les boutons sont câblés entre le GPIO et **GND** (actifs à l'état
 bas, pull-up internes sauf mention).
 
