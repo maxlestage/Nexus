@@ -44,6 +44,7 @@ pour pouvoir ajuster l'ergonomie à la personne, sans impression 3D.
 | [`controller-core/`](controller-core) | Logique partagée `no_std` : mapping, turbo, macros, stats, protocole Pro Controller, protocole de config — **testée sur PC** (`cargo test`) |
 | [`firmware/`](firmware) | Firmware ESP32 (Rust + ESP-IDF) : Bluetooth, HID, haptique, LEDs, NVS, OTA |
 | [`app-ios/`](app-ios) | App iPhone Dioxus + CoreBluetooth |
+| [`web/`](web) | Site mobile-first (React 19 + TypeScript 7, compilé et servi par Bun), déployable sur Heroku |
 | [`docs/BOM.md`](docs/BOM.md) | Liste d'achat (~60–90 €) |
 | [`docs/WIRING.md`](docs/WIRING.md) | Câblage et brochage complet |
 | [`docs/LEGO_BUILD.md`](docs/LEGO_BUILD.md) | Guide de construction LEGO Technic et ajustements ergonomiques |
@@ -61,6 +62,9 @@ cd firmware && cargo run --release
 
 # App iPhone (voir app-ios/README.md)
 cd app-ios && dx build --platform ios --release
+
+# Site (Bun uniquement — voir web/README.md et web/DEPLOY.md)
+cd web && bun install && bun run build && bun run start
 ```
 
 ## Matériel requis (résumé)

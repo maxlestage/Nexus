@@ -1,0 +1,23 @@
+{
+  "name": "nexus-one-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site mobile-first de la manette une main Nexus One",
+  "scripts": {
+    "build": "bun run build.ts",
+    "start": "bun run server.ts",
+    "dev": "bun run build.ts && bun --hot server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "typescript": "7.0.2"
+  }
+}
