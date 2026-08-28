@@ -1,8 +1,7 @@
 //! Surveillance batterie : pont diviseur (2 × 100 kΩ) entre B+ et GPIO36
-//! (ADC1_CH0), plus l'état du TP4056 (broche CHRG, optionnelle, sur GPIO17
-//! via l'entrée `charging`).
-//!
-//! La tension lue est la moitié de la tension batterie.
+//! (ADC1_CH0). La tension lue est la moitié de la tension batterie ; l'état
+//! « en charge » est déduit de la tension (> 4,25 V), la broche CHRG du
+//! TP4056 n'est pas câblée.
 
 /// Convertit une lecture ADC (atténuation 11 dB, 0..=4095 ≈ 0..=3,55 V)
 /// en millivolts batterie (× 2 à cause du pont diviseur).

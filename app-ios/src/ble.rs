@@ -103,6 +103,11 @@ impl BleClient {
 
     /// Envoie une requête et attend la réponse (2 s de timeout).
     pub async fn request(&mut self, req: &Request) -> Result<Response> {
+        // Purge les réponses arrivées après un timeout précédent : sans
+        // cela, la réponse tardive d'une vieille requête serait prise pour
+        // celle de la nouvelle et décalerait la file en permanence.
+        while self.responses.try_recv().is_ok() {}
+
         let mut buf = [0u8; protocol::MAX_MSG_LEN];
         let n = protocol::encode(req, &mut buf).map_err(|e| anyhow!("encode: {e:?}"))?;
         self.peripheral
@@ -112,6 +117,12 @@ impl BleClient {
             .await
             .context("délai dépassé")?
             .context("connexion fermée")
+    }
+
+    /// La liaison est-elle encore établie ? (pour détecter une manette
+    /// éteinte ou un redémarrage post-OTA)
+    pub async fn is_connected(&self) -> bool {
+        self.peripheral.is_connected().await.unwrap_or(false)
     }
 
     pub async fn disconnect(&self) {

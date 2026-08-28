@@ -7,7 +7,10 @@ use crate::buttons::PhysicalInput;
 use heapless::Vec;
 use serde::{Deserialize, Serialize};
 
-pub const MAX_STEPS: usize = 16;
+// Borné pour que la config entière (avec `config::MAX_MACROS` macros
+// pleines) tienne dans un message BLE de `protocol::MAX_MSG_LEN` octets —
+// vérifié par le test `worst_case_config_fits_ble_message`.
+pub const MAX_STEPS: usize = 8;
 
 /// Une étape de macro : boutons logiques maintenus pendant `duration_ms`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -76,7 +79,28 @@ impl MacroEngine {
     }
 
     /// Avance l'état des macros. À appeler à chaque tick (1 kHz typ.).
-    pub fn tick(&mut self, macros: &[MacroDef], physical: u16, now_ms: u32) -> MacroOutput {
+    /// `allow_trigger: false` laisse finir une macro en cours mais n'en
+    /// démarre pas de nouvelle (utilisé pendant le maintien de TurboMod).
+    pub fn tick(
+        &mut self,
+        macros: &[MacroDef],
+        physical: u16,
+        now_ms: u32,
+        allow_trigger: bool,
+    ) -> MacroOutput {
+        // Garde-fou : si la liste des macros a été remplacée pendant une
+        // lecture (SetConfig sans passer par Engine), on abandonne plutôt
+        // que d'indexer hors bornes.
+        if let Some(p) = &self.playing {
+            let out_of_bounds = macros
+                .get(p.macro_idx)
+                .map(|def| p.step_idx >= def.steps.len())
+                .unwrap_or(true);
+            if out_of_bounds {
+                self.playing = None;
+            }
+        }
+
         // Macro en cours : on la déroule jusqu'au bout.
         if let Some(p) = &mut self.playing {
             let def = &macros[p.macro_idx];
@@ -107,7 +131,7 @@ impl MacroEngine {
 
         // Détection d'un nouvel accord complet (front montant).
         let newly_pressed = physical & !self.prev_physical;
-        if newly_pressed != 0 {
+        if allow_trigger && newly_pressed != 0 {
             for (idx, def) in macros.iter().enumerate() {
                 if def.trigger_mask != 0
                     && physical & def.trigger_mask == def.trigger_mask

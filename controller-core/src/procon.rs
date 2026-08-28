@@ -271,9 +271,6 @@ fn spi_flash_read(addr: u32, out: &mut [u8]) {
             for b in out.iter_mut() {
                 *b = 0;
             }
-            if addr == 0x6086 || addr == 0x6098 {
-                // valeurs par défaut plausibles, non critiques
-            }
         }
         // Calibration utilisateur : 0xFF partout = absente (déjà rempli).
         0x8010..=0x8040 => {}

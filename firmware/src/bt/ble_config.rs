@@ -258,12 +258,42 @@ unsafe extern "C" fn gatts_event_handler(
         }
         sys::esp_gatts_cb_event_t_ESP_GATTS_WRITE_EVT => {
             let p = &(*param).write;
+            // Fragment d'écriture préparée (message > MTU−3, courant sur
+            // iOS) : la pile l'accumule elle-même dans la valeur de
+            // l'attribut (ESP_GATT_AUTO_RSP) ; le message complet est
+            // traité à l'EXEC_WRITE_EVT.
+            if p.is_prep {
+                return;
+            }
             let data = core::slice::from_raw_parts(p.value, p.len as usize);
             let mut guard = SHARED.lock().unwrap();
             if let Some(s) = guard.as_mut() {
                 if p.handle == s.handles[IDX_TX_CCCD] && data.len() >= 2 {
                     s.notifications_on = data[0] & 0x01 != 0;
                 } else if p.handle == s.handles[IDX_RX_VAL] {
+                    let _ = s.tx.send(data.to_vec());
+                }
+            }
+        }
+        sys::esp_gatts_cb_event_t_ESP_GATTS_EXEC_WRITE_EVT => {
+            // Fin d'une écriture longue : si elle est validée, relire la
+            // valeur assemblée de la caractéristique RX et la traiter comme
+            // un message complet.
+            let p = &(*param).exec_write;
+            if u32::from(p.exec_write_flag) != sys::ESP_GATT_PREP_WRITE_EXEC {
+                return;
+            }
+            let guard = SHARED.lock().unwrap();
+            if let Some(s) = guard.as_ref() {
+                let mut len: u16 = 0;
+                let mut value: *const u8 = core::ptr::null();
+                let err = sys::esp_ble_gatts_get_attr_value(
+                    s.handles[IDX_RX_VAL],
+                    &mut len,
+                    &mut value,
+                );
+                if err == sys::ESP_OK && !value.is_null() && len > 0 {
+                    let data = core::slice::from_raw_parts(value, len as usize);
                     let _ = s.tx.send(data.to_vec());
                 }
             }

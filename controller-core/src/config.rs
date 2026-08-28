@@ -10,8 +10,10 @@ use serde::{Deserialize, Serialize};
 /// Version du format de configuration (pour migrations futures).
 pub const CONFIG_VERSION: u8 = 1;
 
-/// Nombre maximal de macros stockées.
-pub const MAX_MACROS: usize = 8;
+/// Nombre maximal de macros stockées. Borné, avec `macros_engine::MAX_STEPS`,
+/// pour que la config entière tienne dans un message BLE de
+/// `protocol::MAX_MSG_LEN` octets (test `worst_case_config_fits_ble_message`).
+pub const MAX_MACROS: usize = 4;
 
 /// Vers quel stick logique le joystick physique unique est envoyé.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

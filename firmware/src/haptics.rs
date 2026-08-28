@@ -71,10 +71,13 @@ impl<'d> Haptics<'d> {
     }
 
     pub fn set_enabled(&mut self, enabled: bool) {
-        self.enabled = enabled;
         if !enabled {
+            // Couper le moteur AVANT de désactiver : `rumble` ne fait rien
+            // quand `enabled` est déjà à false, et le registre RTP resterait
+            // sinon à sa dernière valeur — vibration sans fin.
             let _ = self.rumble(0);
         }
+        self.enabled = enabled;
     }
 
     pub fn set_strength(&mut self, strength: u8) {

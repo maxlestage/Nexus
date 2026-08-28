@@ -60,6 +60,9 @@ impl Engine {
     /// Remplace la configuration (reçue de l'app iPhone).
     pub fn set_config(&mut self, config: Config) {
         self.turbo.apply_config(&config.turbo);
+        // La liste des macros change : une lecture en cours indexerait
+        // l'ancienne liste (panic possible si elle a rétréci).
+        self.macros = MacroEngine::new();
         self.config = config;
     }
 
@@ -114,10 +117,12 @@ impl Engine {
         }
 
         // Macros (elles masquent les entrées de leur accord déclencheur).
+        // Pendant le maintien de TurboMod, les accords servent à configurer
+        // le turbo : pas de nouveau déclenchement de macro.
         let was_playing = self.macros.is_playing();
-        let macro_out = self
-            .macros
-            .tick(&self.config.macros, physical, frame.now_ms);
+        let macro_out =
+            self.macros
+                .tick(&self.config.macros, physical, frame.now_ms, !turbo_mod_held);
         if !was_playing && self.macros.is_playing() {
             self.stats.on_macro_fired();
         }
@@ -171,9 +176,13 @@ impl Engine {
 
         self.prev_physical = physical;
 
+        // Les modificateurs seuls ne comptent pas comme un appui (pas de
+        // clic haptique ni de flash LED quand on prend TURBO ou SHIFT).
+        let modifiers = PhysicalInput::TurboMod.mask() | PhysicalInput::ShiftMod.mask();
+
         EngineOutput {
             state,
-            press_edge: rising != 0,
+            press_edge: rising & !modifiers != 0,
             turbo_toggled,
         }
     }

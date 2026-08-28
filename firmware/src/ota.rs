@@ -69,10 +69,21 @@ pub fn run(
         if n == 0 {
             break;
         }
-        update.write(&buf[..n])?;
+        // `write` peut être partiel : une image tronquée silencieusement
+        // serait rejetée (ou pire) au boot suivant.
+        let mut off = 0;
+        while off < n {
+            let w = update.write(&buf[off..n])?;
+            if w == 0 {
+                update.abort()?;
+                anyhow::bail!("écriture OTA bloquée à {written} octets");
+            }
+            off += w;
+        }
         written += n as u64;
         if total > 0 {
-            progress((5 + written * 90 / total.max(1)) as u8);
+            // Borné : un Content-Length erroné ne doit pas afficher > 100 %.
+            progress((5 + written * 90 / total).min(95) as u8);
         }
     }
     if written == 0 {
