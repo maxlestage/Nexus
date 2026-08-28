@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 400" width="1240" height="400"
+     color="#2b3440" role="img"
+     aria-label="Trois détails de câblage : pont diviseur 2 × 100 kΩ pour la mesure batterie, résistance de rappel externe 10 kΩ sur GPIO39, et câblage direct des autres boutons avec pull-up interne.">
+  <defs>
+    <marker id="d-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/>
+    </marker>
+  </defs>
+  <rect id="bg" x="0" y="0" width="1240" height="400" fill="#f4f6f8"/>
+  <g font-family="'IBM Plex Sans', system-ui, -apple-system, sans-serif">
+
+    <line x1="416" y1="24" x2="416" y2="372" stroke="currentColor" stroke-width="1" opacity=".18"/>
+    <line x1="820" y1="24" x2="820" y2="372" stroke="currentColor" stroke-width="1" opacity=".18"/>
+
+    <!-- ============ DÉTAIL A : pont diviseur batterie ============ -->
+    <text x="40" y="40" font-size="14.5" font-weight="600" fill="currentColor">Détail A · mesure de la tension batterie</text>
+    <text x="170" y="76" text-anchor="middle" font-size="12.5" font-weight="600" fill="#e5484d">B+ de l'accu</text>
+    <line x1="170" y1="86" x2="170" y2="114" stroke="#e5484d" stroke-width="2.5"/>
+    <rect x="156" y="114" width="28" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="196" y="141" font-size="12" fill="currentColor">100 kΩ</text>
+    <line x1="170" y1="158" x2="170" y2="196" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="170" cy="196" r="4" fill="currentColor"/>
+    <line x1="170" y1="196" x2="286" y2="196" stroke="#0ea5c6" stroke-width="2.5" marker-end="url(#d-ah)"/>
+    <text x="292" y="200" font-size="12.5" font-weight="600" fill="#0ea5c6" font-family="'IBM Plex Mono', ui-monospace, monospace">GPIO36</text>
+    <line x1="170" y1="196" x2="170" y2="232" stroke="currentColor" stroke-width="2.5"/>
+    <rect x="156" y="232" width="28" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="196" y="259" font-size="12" fill="currentColor">100 kΩ</text>
+    <line x1="170" y1="276" x2="170" y2="300" stroke="currentColor" stroke-width="2.5"/>
+    <g stroke="currentColor" stroke-width="2.5">
+      <line x1="152" y1="300" x2="188" y2="300"/>
+      <line x1="159" y1="307" x2="181" y2="307"/>
+      <line x1="166" y1="314" x2="174" y2="314"/>
+    </g>
+    <text x="40" y="344" font-size="11.5" fill="currentColor" opacity=".75">L'ADC lit la moitié de la tension de</text>
+    <text x="40" y="360" font-size="11.5" fill="currentColor" opacity=".75">l'accu : le firmware la multiplie par 2.</text>
+
+    <!-- ============ DÉTAIL B : pull-up externe GPIO39 ============ -->
+    <text x="444" y="40" font-size="14.5" font-weight="600" fill="currentColor">Détail B · bouton SHIFT sur GPIO39</text>
+    <text x="574" y="76" text-anchor="middle" font-size="12.5" font-weight="600" fill="#e8890c">3,3 V</text>
+    <line x1="574" y1="86" x2="574" y2="114" stroke="#e8890c" stroke-width="2.5"/>
+    <rect x="560" y="114" width="28" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+    <text x="600" y="141" font-size="12" fill="currentColor">10 kΩ</text>
+    <line x1="574" y1="158" x2="574" y2="196" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="574" cy="196" r="4" fill="currentColor"/>
+    <line x1="574" y1="196" x2="690" y2="196" stroke="#3f8ae0" stroke-width="2.5" marker-end="url(#d-ah)"/>
+    <text x="696" y="200" font-size="12.5" font-weight="600" fill="#3f8ae0" font-family="'IBM Plex Mono', ui-monospace, monospace">GPIO39</text>
+    <line x1="574" y1="196" x2="574" y2="224" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="574" cy="224" r="4" fill="currentColor"/>
+    <line x1="574" y1="276" x2="594" y2="232" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="574" cy="276" r="4" fill="currentColor"/>
+    <text x="608" y="256" font-size="12" fill="currentColor">bouton SHIFT</text>
+    <line x1="574" y1="276" x2="574" y2="300" stroke="currentColor" stroke-width="2.5"/>
+    <g stroke="currentColor" stroke-width="2.5">
+      <line x1="556" y1="300" x2="592" y2="300"/>
+      <line x1="563" y1="307" x2="585" y2="307"/>
+      <line x1="570" y1="314" x2="578" y2="314"/>
+    </g>
+    <text x="444" y="344" font-size="11.5" fill="currentColor" opacity=".75">GPIO34 à 39 n'ont pas de pull-up interne :</text>
+    <text x="444" y="360" font-size="11.5" fill="currentColor" opacity=".75">sans cette résistance, l'entrée flotte.</text>
+
+    <!-- ============ DÉTAIL C : tous les autres boutons ============ -->
+    <text x="848" y="40" font-size="14.5" font-weight="600" fill="currentColor">Détail C · les 15 autres boutons</text>
+    <text x="978" y="76" text-anchor="middle" font-size="12.5" font-weight="600" fill="#3f8ae0" font-family="'IBM Plex Mono', ui-monospace, monospace">GPIO 32 · 33 · 25 …</text>
+    <line x1="978" y1="86" x2="978" y2="224" stroke="#3f8ae0" stroke-width="2.5"/>
+    <text x="1000" y="130" font-size="11.5" fill="currentColor" opacity=".75">pull-up interne activée</text>
+    <text x="1000" y="146" font-size="11.5" fill="currentColor" opacity=".75">par le firmware</text>
+    <circle cx="978" cy="224" r="4" fill="currentColor"/>
+    <line x1="978" y1="276" x2="998" y2="232" stroke="currentColor" stroke-width="2.5"/>
+    <circle cx="978" cy="276" r="4" fill="currentColor"/>
+    <text x="1012" y="256" font-size="12" fill="currentColor">bouton</text>
+    <line x1="978" y1="276" x2="978" y2="300" stroke="currentColor" stroke-width="2.5"/>
+    <g stroke="currentColor" stroke-width="2.5">
+      <line x1="960" y1="300" x2="996" y2="300"/>
+      <line x1="967" y1="307" x2="989" y2="307"/>
+      <line x1="974" y1="314" x2="982" y2="314"/>
+    </g>
+    <text x="848" y="344" font-size="11.5" fill="currentColor" opacity=".75">Aucune résistance externe. Deux fils par</text>
+    <text x="848" y="360" font-size="11.5" fill="currentColor" opacity=".75">bouton : relâché = 1, appuyé = 0.</text>
+  </g>
+</svg>
