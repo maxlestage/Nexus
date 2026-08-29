@@ -59,10 +59,20 @@ export function App() {
         <Code />
 
         <footer>
+          <p className="byline">
+            Conçu et développé par <strong>Maxime Nathan Lestage</strong>
+          </p>
           <p>
-            Projet personnel en matériel libre. Le protocole Pro Controller provient du
-            travail de rétro-ingénierie de la communauté ; Nintendo et Switch sont des
-            marques de Nintendo, sans lien avec ce projet.
+            Matériel et logiciel libres, sous licence MIT : cette manette peut être
+            reconstruite et adaptée à une autre situation de handicap.{" "}
+            <a href={`${REPO}/blob/master/LICENSE`} target="_blank" rel="noreferrer">
+              Voir la licence
+            </a>
+          </p>
+          <p>
+            Le protocole Pro Controller provient du travail de rétro-ingénierie de la
+            communauté ; Nintendo et Switch sont des marques de Nintendo, sans lien avec
+            ce projet.
           </p>
           <p className="offline-tag">
             <span className="dot" /> Ce site fonctionne hors ligne une fois consulté.

@@ -2,6 +2,8 @@
 name = "controller-core"
 version = "0.1.0"
 edition = "2021"
+authors = ["Maxime Nathan Lestage"]
+license = "MIT"
 description = "Logique partagée de la manette une main : mapping, turbo, macros, stats, protocole Pro Controller et protocole de configuration BLE"
 
 [dependencies]

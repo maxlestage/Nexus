@@ -310,6 +310,12 @@ footer {
   color: var(--muted); font-size: 14px;
 }
 footer a { color: var(--accent); }
+footer p + p { margin-top: 10px; }
+.byline {
+  font-family: var(--cond); font-size: 17px; color: var(--ink);
+  margin: 0 0 4px;
+}
+.byline strong { font-weight: 700; }
 .offline-tag {
   display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
   font-size: 13.5px; color: var(--muted);

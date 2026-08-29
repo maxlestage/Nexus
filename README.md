@@ -1,5 +1,7 @@
 # Nexus One — manette une main (LEGO Technic + ESP32, 100 % Rust)
 
+*Conçu et développé par **Maxime Nathan Lestage**.*
+
 Manette de jeu **utilisable d'une seule main** (conçue pour une
 hémiplégie droite, usage main gauche), compatible **Nintendo Switch**
 (sans fil, émulation Pro Controller) et **PC/Mac** (HID Bluetooth), avec
@@ -86,6 +88,16 @@ ESP32-WROOM-32 (l'original, pas S3 — Bluetooth Classic obligatoire pour
 la Switch), joystick analogique, 14 boutons, DRV2605L + vibreur,
 bandeau WS2812B, TP4056 USB-C, accu 18650, MT3608, LEGO Technic.
 Détails dans [docs/BOM.md](docs/BOM.md).
+
+## Auteur et licence
+
+Conçu et développé par **Maxime Nathan Lestage** — conception matérielle,
+ergonomie, firmware, application et site.
+
+Distribué sous licence MIT (voir [LICENSE](LICENSE)) : vous pouvez librement
+construire, modifier et redistribuer cette manette, y compris pour l'adapter à
+une autre situation de handicap. Une mention de l'auteur d'origine est
+demandée par la licence.
 
 ## Avertissement
 

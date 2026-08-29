@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "description": "Site mobile-first de la manette une main Nexus One",
+  "author": "Maxime Nathan Lestage",
+  "license": "MIT",
   "scripts": {
     "build": "bun run build.ts",
     "start": "bun run server.ts",

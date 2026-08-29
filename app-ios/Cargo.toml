@@ -2,6 +2,8 @@
 name = "nexus-one-app"
 version = "0.1.0"
 edition = "2021"
+authors = ["Maxime Nathan Lestage"]
+license = "MIT"
 description = "Application iPhone (Rust/Dioxus) de configuration de la manette Nexus One"
 
 [dependencies]
