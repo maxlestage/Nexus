@@ -213,6 +213,14 @@ fn App() -> Element {
             } else {
                 p { class: "muted", "Manette non connectée" }
             }
+            if c.connected {
+                button {
+                    class: "primary",
+                    style: "background:#2c3440; margin-top:6px",
+                    onclick: move |_| ble.send(Cmd::Disconnect),
+                    "Se déconnecter"
+                }
+            }
             if let Some(err) = c.error.clone() {
                 p { style: "color:#ff6b6b", "{err}" }
             }
@@ -526,7 +534,7 @@ fn SettingsView(
                 span { "Couleur" }
                 input {
                     r#type: "color",
-                    value: { format!("#{:02x}{:02x}{:02x}", cfg.leds.r, cfg.leds.g, cfg.leds.b) },
+                    value: format!("#{:02x}{:02x}{:02x}", cfg.leds.r, cfg.leds.g, cfg.leds.b),
                     onchange: move |e| apply(&|c| {
                         let v = e.value();
                         // Uniquement le format #rrggbb : tout autre valeur
