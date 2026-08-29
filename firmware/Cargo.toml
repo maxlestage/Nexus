@@ -2,6 +2,8 @@
 name = "nexus-one-firmware"
 version = "0.1.0"
 edition = "2021"
+authors = ["Maxime Nathan Lestage"]
+license = "MIT"
 description = "Firmware ESP32 de la manette une main Nexus One (Switch + PC, tout en Rust)"
 
 [[bin]]

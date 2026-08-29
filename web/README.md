@@ -43,3 +43,7 @@ sorte qu'un nouveau déploiement invalide automatiquement l'ancien cache.
 - Service worker : réseau d'abord pour le HTML, cache pour le reste
 - Listes cochables conservées dans le stockage local, sans compte ni serveur
 - Aucun défilement horizontal : les schémas larges défilent dans leur cadre
+
+## Auteur
+
+Conçu et développé par **Maxime Nathan Lestage**. Licence MIT.
