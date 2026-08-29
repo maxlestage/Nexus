@@ -5,20 +5,47 @@ turbo, macros, LEDs, vibrations, statistiques, batterie et mise à jour
 OTA. Construite avec [Dioxus](https://dioxuslabs.com) (UI) et
 [btleplug](https://github.com/deviceplug/btleplug) (CoreBluetooth).
 
-## Prérequis
+## Prérequis — un Mac est obligatoire
 
-- macOS avec Xcode (signature iOS) et un compte développeur Apple
-  (un compte gratuit suffit pour installer sur son propre iPhone).
-- `cargo install dioxus-cli`
-- `rustup target add aarch64-apple-ios`
+Le SDK iOS n'est distribué que sur macOS et Apple n'autorise sa compilation
+que sur du matériel Apple : cette étape ne peut pas être faite sur une
+machine Linux, ni dans un conteneur.
+
+- **macOS avec Xcode** installé (fournit le SDK iOS et la signature).
+- Un **compte développeur Apple** — le compte gratuit suffit pour installer
+  sur son propre iPhone ; l'application expire alors au bout de 7 jours et
+  se réinstalle d'un simple `dx build`.
+- Les outils Rust :
+
+```bash
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+cargo install dioxus-cli@0.7.10      # doit correspondre à la version du crate
+xcode-select --install
+```
 
 ## Lancer sur iPhone
 
 ```bash
 cd app-ios
 dx build --platform ios --release
-dx serve --platform ios          # simulateur (sans Bluetooth !)
 ```
+
+Puis, la première fois, ouvrez le projet Xcode généré pour choisir votre
+équipe de signature (Signing & Capabilities → Team), branchez l'iPhone et
+lancez. Sur l'iPhone, la première ouverture demande d'autoriser le
+développeur dans Réglages → Général → VPN et gestion de l'appareil.
+
+```bash
+dx serve --platform ios          # simulateur — mais sans Bluetooth
+```
+
+## État de vérification
+
+Le code de l'application **compile sans erreur ni avertissement** (vérifié
+avec `cargo check` sur Linux, ce qui valide toute la logique Rust, l'usage
+de l'API Dioxus et le client BLE). Ce que cette vérification ne couvre pas,
+faute de Mac : la compilation vers `aarch64-apple-ios`, la signature, et le
+comportement réel de CoreBluetooth sur l'appareil.
 
 Le Bluetooth ne fonctionne pas dans le simulateur iOS : tester sur un
 appareil réel. Dans le projet Xcode généré, vérifier que `Info.plist`

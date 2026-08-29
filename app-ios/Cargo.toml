@@ -8,8 +8,8 @@ description = "Application iPhone (Rust/Dioxus) de configuration de la manette N
 
 [dependencies]
 controller-core = { path = "../controller-core" }
-dioxus = { version = "0.6", features = ["mobile"] }
-btleplug = "0.11"
+dioxus = { version = "0.7", features = ["mobile"] }
+btleplug = "0.12"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros"] }
 futures = "0.3"
 uuid = "1"
