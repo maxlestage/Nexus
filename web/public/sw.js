@@ -47,9 +47,11 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Ressources du site : cache d'abord, elles sont empreintées donc immuables.
+  // ignoreSearch : les icônes sont demandées avec « ?v=… », alors qu'elles
+  // sont préchargées sous leur chemin nu.
   if (sameOrigin) {
     event.respondWith(
-      caches.match(request).then(
+      caches.match(request, { ignoreSearch: true }).then(
         (hit) =>
           hit ??
           fetch(request).then((res) => {
