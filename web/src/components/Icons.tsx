@@ -89,30 +89,30 @@ export function BrandMark({ size = 26 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 512 512" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="bm-bg" x1="0" y1="0" x2="0.55" y2="1">
-          <stop offset="0" stopColor="#334252" />
-          <stop offset="1" stopColor="#111820" />
+          <stop offset="0" stopColor="#f2ab68" />
+          <stop offset="1" stopColor="#bf5d1c" />
         </linearGradient>
-        <linearGradient id="bm-cu" x1="0.1" y1="0" x2="0.9" y2="1">
-          <stop offset="0" stopColor="#f6bc90" />
-          <stop offset="0.5" stopColor="#e08a4e" />
-          <stop offset="1" stopColor="#b45a22" />
+        <linearGradient id="bm-ink" x1="0.1" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stopColor="#33404f" />
+          <stop offset="0.55" stopColor="#1d2733" />
+          <stop offset="1" stopColor="#121a23" />
         </linearGradient>
       </defs>
       <rect width="512" height="512" rx="118" fill="url(#bm-bg)" />
-      <circle cx="256" cy="256" r="80" fill="none" stroke="url(#bm-cu)" strokeWidth="34" />
+      <circle cx="256" cy="256" r="80" fill="none" stroke="url(#bm-ink)" strokeWidth="34" />
       <path
         d="M176 256 A80 80 0 0 1 228.8 180.8"
         fill="none"
         stroke="#fff"
-        strokeOpacity="0.34"
+        strokeOpacity="0.42"
         strokeWidth="10.2"
         strokeLinecap="round"
       />
-      <circle cx="256" cy="256" r="23" fill="url(#bm-cu)" />
-      <circle cx="362.1" cy="149.9" r="32" fill="#fff" />
-      <circle cx="362.1" cy="362.1" r="32" fill="#fff" />
-      <circle cx="149.9" cy="362.1" r="32" fill="#fff" />
-      <circle cx="149.9" cy="149.9" r="32" fill="#fff" />
+      <circle cx="256" cy="256" r="23" fill="url(#bm-ink)" />
+      <circle cx="362.1" cy="149.9" r="32" fill="#22303f" />
+      <circle cx="362.1" cy="362.1" r="32" fill="#22303f" />
+      <circle cx="149.9" cy="362.1" r="32" fill="#22303f" />
+      <circle cx="149.9" cy="149.9" r="32" fill="#22303f" />
     </svg>
   );
 }
