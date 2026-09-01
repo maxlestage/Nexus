@@ -44,6 +44,21 @@ sorte qu'un nouveau déploiement invalide automatiquement l'ancien cache.
 - Listes cochables conservées dans le stockage local, sans compte ni serveur
 - Aucun défilement horizontal : les schémas larges défilent dans leur cadre
 
+## Icônes
+
+Les PNG (`icon-192`, `icon-512`, `apple-touch-icon`, variante masquable)
+sont **générés** à partir de `public/favicon.svg` :
+
+```bash
+CHROME=/chemin/vers/chromium ./tools/make-icons.sh
+```
+
+Deux règles que le script applique et qu'il ne faut pas défaire : les
+icônes iOS doivent être **opaques** et **sans coins arrondis** — le
+système applique son propre masque — et la mise à l'échelle passe par une
+page HTML dimensionnée, sinon Chromium recadre le SVG au lieu de le
+réduire.
+
 ## Auteur
 
 Conçu et développé par **Maxime Nathan Lestage**. Licence MIT.
