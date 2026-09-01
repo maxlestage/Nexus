@@ -58,10 +58,35 @@ async function copyDir(from: string, to: string): Promise<string[]> {
 
 const staticFiles = await copyDir(PUBLIC, OUT);
 
+// iOS et Safari gardent l'icône d'accueil en cache très longtemps, et un
+// nom de fichier stable ne suffit pas à leur faire reprendre un nouveau
+// visuel : on estampille les URL d'icônes d'une empreinte de leur contenu.
+const ICONS = [
+  "/favicon.svg",
+  "/apple-touch-icon.png",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-512.png",
+];
+let iconSig = "";
+for (const p of ICONS) {
+  const f = Bun.file(join(OUT, p));
+  if (await f.exists()) iconSig += Bun.hash(await f.arrayBuffer()).toString(36);
+}
+const iconV = Bun.hash(iconSig).toString(36).slice(0, 8);
+const stampIcons = (text: string) =>
+  ICONS.reduce((acc, p) => acc.replaceAll(`"${p}"`, `"${p}?v=${iconV}"`), text);
+
+// Le manifeste référence les mêmes icônes : il doit porter la même version.
+const manifestPath = join(OUT, "manifest.webmanifest");
+if (await Bun.file(manifestPath).exists()) {
+  await Bun.write(manifestPath, stampIcons(await Bun.file(manifestPath).text()));
+}
+
 const html = (await Bun.file("index.html").text())
   .replace("<!--CSS-->", css ? `<link rel="stylesheet" href="${css}" />` : "")
   .replace("<!--JS-->", `<script type="module" src="${js}"></script>`);
-await Bun.write(join(OUT, "index.html"), html);
+await Bun.write(join(OUT, "index.html"), stampIcons(html));
 
 // Le service worker précharge l'app et les schémas, pas les cartes ni les sourcemaps.
 const precache = [
@@ -69,7 +94,7 @@ const precache = [
   ...outputs.filter((p) => !p.endsWith(".map")),
   ...staticFiles.filter((p) => p !== "/sw.js" && !p.endsWith(".map")),
 ];
-const version = Bun.hash(precache.join("|") + html).toString(36);
+const version = Bun.hash(precache.join("|") + html + iconV).toString(36);
 const sw = (await Bun.file(join(PUBLIC, "sw.js")).text())
   .replace("__VERSION__", version)
   .replace("__PRECACHE__", JSON.stringify(precache, null, 2));
