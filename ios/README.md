@@ -41,19 +41,33 @@ fastlane beta     # compile, signe et envoie sur TestFlight
 ## Publication automatique
 
 Le workflow `.github/workflows/ios.yml` compile et envoie sur TestFlight à
-chaque push sur `master`. Il attend quatre secrets GitHub :
+chaque push sur `master`. Il n'attend que **trois secrets** :
 
 | Secret | Contenu |
 |---|---|
 | `ASC_ISSUER_ID` | Issuer ID de la clé App Store Connect |
 | `ASC_KEY_ID` | Key ID de la clé |
 | `ASC_KEY_P8` | contenu du fichier `.p8`, de `-----BEGIN` à `-----END` inclus |
-| `APPLE_TEAM_ID` | identifiant de votre équipe Apple Developer |
+
+Le **Team ID n'est pas demandé** : `scripts/team-id.rb` le déduit de la clé
+elle-même, en lisant l'attribut `seedId` d'un identifiant de bundle du
+compte — c'est exactement le Team ID. Un secret `APPLE_TEAM_ID` reste
+prioritaire s'il existe, mais il est facultatif.
 
 Aucun certificat n'est stocké dans le dépôt : Xcode crée et récupère
 lui-même certificat et profil grâce à la clé (`-allowProvisioningUpdates`).
 La clé est écrite dans un fichier temporaire puis effacée, y compris si le
 job échoue.
+
+### Identifiant de l'application
+
+Par défaut `com.maximelestage.nexusone`. Pour en utiliser un autre, définir
+une **variable** de dépôt `BUNDLE_ID` (Settings → Secrets and variables →
+Actions → Variables) : elle alimente à la fois le projet Xcode et fastlane.
+
+L'application doit exister dans App Store Connect avec cet identifiant pour
+que l'envoi TestFlight aboutisse — c'est la seule étape à faire une fois à
+la main.
 
 Sans secrets — sur une pull request, ou avant leur configuration — le
 workflow se contente d'une compilation non signée : elle valide le Swift et
