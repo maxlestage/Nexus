@@ -34,7 +34,7 @@ platform :ios do
       in_house: false
     )
 
-    ensure_app_record(api_key, app_identifier)
+    ensure_app_record(key_path, app_identifier)
 
     # Numéro de build unique et croissant. Passé en réglage xcodebuild
     # plutôt que par agvtool, qui exige une configuration de versionnage
@@ -84,21 +84,45 @@ end
 #
 # L'identifiant est déjà enregistré côté portail développeur par la signature
 # automatique de Xcode, d'où skip_devcenter.
-def ensure_app_record(api_key, app_identifier)
+# Crée la fiche de l'application sur App Store Connect si elle n'existe pas
+# encore : sans elle, l'envoi TestFlight échoue sur « Couldn't find app ».
+#
+# L'action « produce » ne convient pas ici : elle appelle
+# Spaceship::ConnectAPI.login, qui remplace le client authentifié par clé par
+# une connexion identifiant Apple + mot de passe. On passe donc directement
+# par Spaceship, avec les mêmes appels que produce fait en interne.
+#
+# L'identifiant de bundle, lui, est déjà enregistré côté portail développeur
+# par la signature automatique de Xcode.
+def ensure_app_record(key_path, app_identifier)
+  require "spaceship"
+
+  Spaceship::ConnectAPI.auth(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    filepath: key_path
+  )
+
+  existing = Spaceship::ConnectAPI::App.find(app_identifier)
+  if existing
+    UI.success("Fiche « #{app_identifier} » déjà présente (#{existing.id}).")
+    return
+  end
+
   last_error = nil
 
   APP_NAME_CANDIDATES.each do |name|
     begin
-      # Options volontairement réduites au strict nécessaire : la langue
-      # principale et la catégorie se règlent en un clic sur App Store
-      # Connect, alors qu'une option mal nommée coûte un cycle de CI.
-      produce(
-        api_key: api_key,
-        app_identifier: app_identifier,
-        app_name: name,
+      app = Spaceship::ConnectAPI::App.create(
+        name: name,
+        version_string: "1.0",
         sku: app_identifier,
-        skip_devcenter: true
+        primary_locale: "fr-FR",
+        bundle_id: app_identifier,
+        platforms: [Spaceship::ConnectAPI::Platform::IOS]
       )
+      UI.success("Fiche « #{name} » créée sur App Store Connect (#{app.id}).")
+      wait_until_listed(app_identifier)
       return
     rescue StandardError => e
       last_error = e
@@ -116,4 +140,18 @@ def ensure_app_record(api_key, app_identifier)
       - la clé App Store Connect n'a pas le rôle Admin ou App Manager :
         créez la fiche à la main avec l'identifiant ci-dessus.
   MSG
+end
+
+# App Store Connect met quelques secondes à référencer une fiche neuve. On
+# n'échoue pas si elle tarde : la compilation qui suit dure plus longtemps
+# que cette attente, et laisse donc à Apple le temps de suivre.
+def wait_until_listed(app_identifier, attempts: 10, delay: 6)
+  attempts.times do
+    return if Spaceship::ConnectAPI::App.find(app_identifier)
+
+    UI.message("La fiche n'est pas encore listée, nouvelle tentative…")
+    sleep(delay)
+  end
+
+  UI.important("Fiche toujours pas listée ; on continue, la compilation laisse du temps à Apple.")
 end
