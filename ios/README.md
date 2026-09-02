@@ -81,9 +81,29 @@ Par défaut `com.maximelestage.nexusone`. Pour en utiliser un autre, définir
 une **variable** de dépôt `BUNDLE_ID` (Settings → Secrets and variables →
 Actions → Variables) : elle alimente à la fois le projet Xcode et fastlane.
 
-L'application doit exister dans App Store Connect avec cet identifiant pour
-que l'envoi TestFlight aboutisse — c'est la seule étape à faire une fois à
-la main.
+### Créer la fiche sur App Store Connect
+
+C'est **la seule étape manuelle du projet**, et elle ne se fait qu'une fois.
+La CI tente de créer la fiche elle-même, mais Apple ne l'autorise qu'aux
+clés ayant un rôle suffisant ; sinon elle répond :
+
+```
+The resource 'apps' does not allow 'CREATE'.
+Allowed operations are: GET_COLLECTION, GET_INSTANCE, UPDATE
+```
+
+Dans ce cas, sur https://appstoreconnect.apple.com → Apps → « + » :
+
+| Champ | Valeur |
+|---|---|
+| Plateformes | iOS |
+| Nom | Nexus One (ou tout autre nom libre sur l'App Store) |
+| Langue principale | Français |
+| ID de package | `com.maximelestage.nexusone` |
+| SKU | `com.maximelestage.nexusone` |
+
+Puis relancer le workflow (Actions → App iOS → Run workflow). Tout le reste
+est automatique.
 
 Sans secrets — sur une pull request, ou avant leur configuration — le
 workflow se contente d'une compilation non signée : elle valide le Swift et

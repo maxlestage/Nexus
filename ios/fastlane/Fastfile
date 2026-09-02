@@ -126,19 +126,50 @@ def ensure_app_record(key_path, app_identifier)
       return
     rescue StandardError => e
       last_error = e
+
+      # Apple refuse la création aux clés qui n'ont pas le rôle voulu. Ce
+      # n'est pas une question de nom : inutile d'essayer les suivants.
+      raise_manual_creation_needed(app_identifier, e) if e.message.include?("does not allow 'CREATE'")
+
       UI.important("Nom « #{name} » refusé : #{e.message.lines.first.to_s.strip}")
     end
   end
 
   UI.user_error!(<<~MSG)
-    Impossible de créer la fiche « #{app_identifier} » sur App Store Connect.
+    Aucun des noms proposés n'a été accepté pour « #{app_identifier} ».
     Dernière erreur : #{last_error&.message}
 
-    Deux causes possibles :
-      - tous les noms proposés sont déjà pris : définissez la variable de
-        dépôt APP_NAME avec un nom libre ;
-      - la clé App Store Connect n'a pas le rôle Admin ou App Manager :
-        créez la fiche à la main avec l'identifiant ci-dessus.
+    Un nom d'application est unique sur tout l'App Store. Définissez la
+    variable de dépôt APP_NAME (Settings → Secrets and variables → Actions
+    → Variables) avec un nom libre, puis relancez ce workflow.
+  MSG
+end
+
+# La création d'une fiche par l'API n'est ouverte qu'aux clés App Store
+# Connect ayant un rôle suffisant. La clé de ce dépôt ne l'a pas : c'est la
+# seule étape que la CI ne peut pas faire à votre place.
+def raise_manual_creation_needed(app_identifier, error)
+  UI.user_error!(<<~MSG)
+    La clé App Store Connect n'a pas le droit de créer une fiche
+    d'application. Réponse d'Apple :
+
+      #{error.message.lines.first.to_s.strip}
+
+    C'est la seule étape manuelle du projet, et elle ne se fait qu'une fois.
+
+    Sur https://appstoreconnect.apple.com → Apps → « + » → Nouvelle app :
+      Plateformes ........ iOS
+      Nom ................ Nexus One  (ou tout autre nom libre)
+      Langue principale .. Français
+      ID de package ...... #{app_identifier}
+      SKU ................ #{app_identifier}
+
+    Si l'ID de package n'apparaît pas dans la liste, c'est qu'il faut
+    d'abord l'enregistrer sur https://developer.apple.com/account/resources/
+    identifiers — la compilation de ce workflow l'a normalement déjà fait.
+
+    Relancez ensuite ce workflow (onglet Actions → App iOS → Run workflow) :
+    tout le reste est automatique, la version partira sur TestFlight.
   MSG
 end
 
