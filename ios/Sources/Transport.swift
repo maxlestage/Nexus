@@ -55,7 +55,7 @@ final class Transport: NSObject, ObservableObject {
         timeout = Task { [weak self] in
             try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
-            await self?.reportTimeout()
+            self?.reportTimeout()
         }
         refresh()
     }

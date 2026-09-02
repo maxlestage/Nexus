@@ -31,10 +31,16 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Nexus One
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        # Aucun chiffrement propre à l'application : sans cette clé, TestFlight
+        # retient la version en attendant une réponse manuelle sur la
+        # conformité à l'exportation.
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: false
         INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: >-
           Nexus One utilise le Bluetooth pour se connecter à votre manette et
           en modifier la configuration.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # iPhone uniquement : l'application se tient d'une main, en portrait.
+        TARGETED_DEVICE_FAMILY: "1"
         ENABLE_USER_SCRIPT_SANDBOXING: false
         # Pont Rust : bibliothèque statique + en-tête C.
         SWIFT_OBJC_BRIDGING_HEADER: Sources/NexusOne-Bridging-Header.h
