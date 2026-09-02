@@ -1,0 +1,93 @@
+name: App iOS
+
+on:
+  push:
+    branches: [master]
+    paths: ["ios/**", "ios-bridge/**", "controller-core/**", ".github/workflows/ios.yml"]
+  pull_request:
+    paths: ["ios/**", "ios-bridge/**", "controller-core/**"]
+  workflow_dispatch:
+    inputs:
+      testflight:
+        description: "Envoyer la version sur TestFlight"
+        type: boolean
+        default: true
+
+jobs:
+  # Le pont Rust se vérifie sans Mac : autant échouer vite et pour pas cher.
+  bridge:
+    name: Pont Rust
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+          components: clippy
+      - run: cargo test -p nexus-bridge -p controller-core
+      - run: cargo clippy -p nexus-bridge --all-targets -- -D warnings
+      - run: cargo check -p nexus-bridge --target aarch64-apple-ios
+
+  build:
+    name: Compilation iOS
+    needs: bridge
+    runs-on: macos-15
+    # Le contexte « secrets » n'est pas exploitable dans un « if » : on le
+    # transforme en variable d'environnement, elle utilisable.
+    env:
+      HAS_ASC_KEY: ${{ secrets.ASC_KEY_P8 != '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Installer XcodeGen
+        run: brew install xcodegen
+
+      - name: Générer le projet Xcode
+        working-directory: ios
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: xcodegen generate
+
+      # Sans secrets (pull request, fork), on s'arrête à une compilation non
+      # signée : elle valide le Swift et le pont, sans toucher au compte Apple.
+      - name: Compiler sans signature
+        if: github.event_name == 'pull_request' || env.HAS_ASC_KEY != 'true'
+        working-directory: ios
+        run: fastlane check
+
+      - name: Déposer la clé App Store Connect
+        if: github.event_name != 'pull_request' && env.HAS_ASC_KEY == 'true'
+        working-directory: ios
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p build
+          printf '%s' "$ASC_KEY_P8" > build/asc_key.p8
+          chmod 600 build/asc_key.p8
+
+      - name: Compiler et envoyer sur TestFlight
+        if: github.event_name != 'pull_request' && env.HAS_ASC_KEY == 'true'
+        working-directory: ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          FASTLANE_SKIP_UPDATE_CHECK: "1"
+          CHANGELOG: ${{ github.event.head_commit.message }}
+        run: fastlane beta
+
+      - name: Effacer la clé
+        if: always()
+        working-directory: ios
+        run: rm -f build/asc_key.p8
+
+      - name: Conserver l'IPA
+        if: ${{ hashFiles('ios/build/NexusOne.ipa') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: NexusOne-ipa
+          path: ios/build/NexusOne.ipa

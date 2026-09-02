@@ -1,4 +1,4 @@
-# Nexus One — manette une main (LEGO Technic + ESP32, 100 % Rust)
+# Nexus One — manette une main (LEGO Technic + ESP32)
 
 *Conçu et développé par **Maxime Nathan Lestage**.*
 
@@ -27,8 +27,9 @@ pour pouvoir ajuster l'ergonomie à la personne, sans impression 3D.
 - ✅ **Switch** : émulation Pro Controller en Bluetooth classique
   (subcommands, calibration, rumble, numéro de joueur)
 - ✅ **PC/macOS** : gamepad HID BLE natif (ZL maintenu à l'allumage)
-- ✅ **App iPhone en Rust** (Dioxus) : remapping des 2 couches, turbo,
-  macros, LEDs, vibrations, stats, batterie, OTA
+- ✅ **App iPhone en Swift** (SwiftUI) : remapping des 2 couches, turbo,
+  macros, LEDs, vibrations, stats, batterie, OTA — le protocole reste en
+  Rust, partagé avec le firmware
 - ✅ **Retour haptique** : DRV2605L — rumble de la console + clics locaux
 - ✅ **RGB** : 8 × WS2812B (fixe, respiration, arc-en-ciel, réaction aux
   appuis) + états (appairage, joueur, batterie faible, OTA)
@@ -45,7 +46,8 @@ pour pouvoir ajuster l'ergonomie à la personne, sans impression 3D.
 |---------|---------|
 | [`controller-core/`](controller-core) | Logique partagée `no_std` : mapping, turbo, macros, stats, protocole Pro Controller, protocole de config — **testée sur PC** (`cargo test`) |
 | [`firmware/`](firmware) | Firmware ESP32 (Rust + ESP-IDF) : Bluetooth, HID, haptique, LEDs, NVS, OTA |
-| [`app-ios/`](app-ios) | App iPhone Dioxus + CoreBluetooth |
+| [`ios/`](ios) | App iPhone en Swift natif (SwiftUI + CoreBluetooth), publiée sur TestFlight par GitHub Actions |
+| [`ios-bridge/`](ios-bridge) | Pont C : compile `controller-core` pour iOS, pour que l'app ne réimplémente pas le protocole |
 | [`web/`](web) | Site mobile-first (React 19 + TypeScript 7, compilé et servi par Bun), déployable sur Heroku |
 | [`docs/BOM.md`](docs/BOM.md) | Liste d'achat (~60–90 €) |
 | [`docs/WIRING.md`](docs/WIRING.md) | Câblage et brochage complet |
@@ -62,8 +64,8 @@ cargo test -p controller-core
 # Flasher le firmware (voir firmware/README.md pour la toolchain Xtensa)
 cd firmware && cargo run --release
 
-# App iPhone (voir app-ios/README.md)
-cd app-ios && dx build --platform ios --release
+# App iPhone (voir ios/README.md — nécessite un Mac)
+cd ios && xcodegen generate && fastlane check
 
 # Site (Bun uniquement — voir web/README.md)
 bun install && bun run build && bun run start
