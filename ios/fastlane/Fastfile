@@ -9,10 +9,22 @@ require "shellwords"
 
 default_platform(:ios)
 
+# Noms tentés pour la fiche App Store Connect, dans l'ordre. Un nom
+# d'application est unique sur tout l'App Store : si « Nexus One » est déjà
+# pris par quelqu'un d'autre, on essaie le suivant. La variable de dépôt
+# APP_NAME court-circuite la liste.
+APP_NAME_CANDIDATES = [
+  ENV["APP_NAME"],
+  "Nexus One",
+  "Nexus One Manette",
+  "Manette Nexus One"
+].compact.reject(&:empty?).freeze
+
 platform :ios do
   desc "Compile et envoie une version sur TestFlight"
   lane :beta do
     key_path = File.expand_path("../build/asc_key.p8", __dir__)
+    app_identifier = ENV.fetch("BUNDLE_ID", "com.maximelestage.nexusone")
 
     api_key = app_store_connect_api_key(
       key_id: ENV.fetch("ASC_KEY_ID"),
@@ -21,6 +33,8 @@ platform :ios do
       duration: 1200,
       in_house: false
     )
+
+    ensure_app_record(api_key, app_identifier)
 
     # Numéro de build unique et croissant. Passé en réglage xcodebuild
     # plutôt que par agvtool, qui exige une configuration de versionnage
@@ -62,4 +76,44 @@ platform :ios do
       xcargs: "CODE_SIGNING_ALLOWED=NO build"
     )
   end
+end
+
+# Crée la fiche de l'application sur App Store Connect si elle n'existe pas
+# encore : sans elle, l'envoi TestFlight échoue sur « Couldn't find app ».
+# `produce` ne fait rien quand la fiche est déjà là.
+#
+# L'identifiant est déjà enregistré côté portail développeur par la signature
+# automatique de Xcode, d'où skip_devcenter.
+def ensure_app_record(api_key, app_identifier)
+  last_error = nil
+
+  APP_NAME_CANDIDATES.each do |name|
+    begin
+      # Options volontairement réduites au strict nécessaire : la langue
+      # principale et la catégorie se règlent en un clic sur App Store
+      # Connect, alors qu'une option mal nommée coûte un cycle de CI.
+      produce(
+        api_key: api_key,
+        app_identifier: app_identifier,
+        app_name: name,
+        sku: app_identifier,
+        skip_devcenter: true
+      )
+      return
+    rescue StandardError => e
+      last_error = e
+      UI.important("Nom « #{name} » refusé : #{e.message.lines.first.to_s.strip}")
+    end
+  end
+
+  UI.user_error!(<<~MSG)
+    Impossible de créer la fiche « #{app_identifier} » sur App Store Connect.
+    Dernière erreur : #{last_error&.message}
+
+    Deux causes possibles :
+      - tous les noms proposés sont déjà pris : définissez la variable de
+        dépôt APP_NAME avec un nom libre ;
+      - la clé App Store Connect n'a pas le rôle Admin ou App Manager :
+        créez la fiche à la main avec l'identifiant ci-dessus.
+  MSG
 end
