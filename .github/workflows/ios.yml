@@ -7,11 +7,11 @@ on:
   pull_request:
     paths: ["ios/**", "ios-bridge/**", "controller-core/**"]
   workflow_dispatch:
-    inputs:
-      testflight:
-        description: "Envoyer la version sur TestFlight"
-        type: boolean
-        default: true
+
+# L'identifiant de l'application. Redéfinissable sans toucher au code par une
+# variable de dépôt (Settings → Secrets and variables → Actions → Variables).
+env:
+  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.maximelestage.nexusone' }}
 
 jobs:
   # Le pont Rust se vérifie sans Mac : autant échouer vite et pour pas cher.
@@ -47,28 +47,51 @@ jobs:
       - name: Installer XcodeGen
         run: brew install xcodegen
 
-      - name: Générer le projet Xcode
-        working-directory: ios
-        env:
-          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
-        run: xcodegen generate
-
-      # Sans secrets (pull request, fork), on s'arrête à une compilation non
-      # signée : elle valide le Swift et le pont, sans toucher au compte Apple.
-      - name: Compiler sans signature
-        if: github.event_name == 'pull_request' || env.HAS_ASC_KEY != 'true'
-        working-directory: ios
-        run: fastlane check
-
       - name: Déposer la clé App Store Connect
-        if: github.event_name != 'pull_request' && env.HAS_ASC_KEY == 'true'
+        if: env.HAS_ASC_KEY == 'true'
         working-directory: ios
         env:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
           mkdir -p build
-          printf '%s' "$ASC_KEY_P8" > build/asc_key.p8
+          printf '%s\n' "$ASC_KEY_P8" > build/asc_key.p8
           chmod 600 build/asc_key.p8
+
+      # Le Team ID se déduit de la clé : pas de secret supplémentaire à créer.
+      # Un secret APPLE_TEAM_ID, s'il existe, reste prioritaire.
+      - name: Déterminer le Team ID
+        if: env.HAS_ASC_KEY == 'true'
+        working-directory: ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH: build/asc_key.p8
+          OVERRIDE: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            TEAM="$OVERRIDE"
+            echo "Team ID fourni par secret."
+          else
+            TEAM="$(ruby scripts/team-id.rb)"
+          fi
+          echo "DEVELOPMENT_TEAM=$TEAM" >> "$GITHUB_ENV"
+          echo "Team ID retenu : $TEAM"
+
+      - name: Générer le projet Xcode
+        working-directory: ios
+        run: |
+          # Défini même sans clé (compilation non signée) : XcodeGen exige
+          # que la variable existe.
+          export DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-}"
+          xcodegen generate
+
+      # Sans clé (pull request, fork, secrets absents), on s'arrête à une
+      # compilation non signée : elle valide le Swift et le pont Rust sans
+      # toucher au compte Apple.
+      - name: Compiler sans signature
+        if: github.event_name == 'pull_request' || env.HAS_ASC_KEY != 'true'
+        working-directory: ios
+        run: fastlane check
 
       - name: Compiler et envoyer sur TestFlight
         if: github.event_name != 'pull_request' && env.HAS_ASC_KEY == 'true'
@@ -86,7 +109,7 @@ jobs:
         run: rm -f build/asc_key.p8
 
       - name: Conserver l'IPA
-        if: ${{ hashFiles('ios/build/NexusOne.ipa') != '' }}
+        if: hashFiles('ios/build/NexusOne.ipa') != ''
         uses: actions/upload-artifact@v4
         with:
           name: NexusOne-ipa

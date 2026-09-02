@@ -1,1 +1,2 @@
-app_identifier "com.maximelestage.nexusone"
+# Repris de la variable BUNDLE_ID, pour n'avoir qu'un seul endroit à changer.
+app_identifier ENV.fetch("BUNDLE_ID", "com.maximelestage.nexusone")

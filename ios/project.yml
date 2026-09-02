@@ -24,7 +24,7 @@ targets:
       - path: Resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.maximelestage.nexusone
+        PRODUCT_BUNDLE_IDENTIFIER: ${BUNDLE_ID}
         INFOPLIST_KEY_CFBundleDisplayName: Nexus One
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
