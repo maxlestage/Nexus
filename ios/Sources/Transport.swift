@@ -16,9 +16,9 @@ final class Transport: NSObject, ObservableObject {
     private var peripheral: CBPeripheral?
     private var rx: CBCharacteristic?
 
-    private let serviceUUID = CBUUID(string: Core.serviceUUID)
-    private let rxUUID = CBUUID(string: Core.rxCharUUID)
-    private let txUUID = CBUUID(string: Core.txCharUUID)
+    private let serviceUUID = CBUUID(string: CoreUUIDs.service)
+    private let rxUUID = CBUUID(string: CoreUUIDs.rx)
+    private let txUUID = CBUUID(string: CoreUUIDs.tx)
 
     /// Coupe l'attente si la manette ne répond pas.
     private var timeout: Task<Void, Never>?
@@ -32,12 +32,17 @@ final class Transport: NSObject, ObservableObject {
     // MARK: Cycle interface → Rust → Bluetooth
 
     /// Transmet une action puis émet ce que le cœur a mis en file.
-    func send(_ id: String, _ value: (any Encodable)? = nil) {
-        core.dispatch(id, value)
+    func send(_ id: String, json: String = "") {
+        core.dispatch(id, json: json)
         if id == "connect" { startScan() }
         if id == "disconnect" { closeConnection() }
         pump()
     }
+
+    func send(_ id: String, text: String) { send(id, json: ActionValue.text(text)) }
+    func send(_ id: String, bool: Bool) { send(id, json: ActionValue.bool(bool)) }
+    func send(_ id: String, number: Double) { send(id, json: ActionValue.number(number)) }
+    func send(_ id: String, index: Int) { send(id, json: ActionValue.number(index)) }
 
     /// Émet la prochaine trame en attente, s'il y en a une et si la liaison
     /// est libre.

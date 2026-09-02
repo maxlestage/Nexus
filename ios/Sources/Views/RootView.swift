@@ -44,7 +44,7 @@ struct RootView: View {
                     .tag(index)
                 }
             }
-            .onChange(of: selectedTab) { _, new in transport.send("tab", new) }
+            .onChange(of: selectedTab) { _, new in transport.send("tab", index: new) }
         }
     }
 
@@ -97,10 +97,10 @@ struct ConnectScreen: View {
 }
 
 struct SectionView: View {
-    let section: Section
+    let section: FormSection
 
     var body: some View {
-        SwiftUI.Section {
+        Section {
             ForEach(section.rows) { row in RowView(row: row) }
         } header: {
             if let header = section.header { Text(header) }

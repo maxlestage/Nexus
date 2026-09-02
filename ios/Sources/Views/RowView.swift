@@ -19,30 +19,30 @@ struct RowView: View {
             }
 
         case .picker(let id, let label, let value, let options):
-            Picker(label, selection: bind(value) { transport.send(id, $0) }) {
+            Picker(label, selection: bind(value) { transport.send(id, text: $0) }) {
                 ForEach(options) { Text($0.label).tag($0.value) }
             }
 
         case .segmented(let id, let value, let options):
-            Picker("", selection: bind(value) { transport.send(id, $0) }) {
+            Picker("", selection: bind(value) { transport.send(id, text: $0) }) {
                 ForEach(options) { Text($0.label).tag($0.value) }
             }
             .pickerStyle(.segmented)
             .labelsHidden()
 
         case .toggle(let id, let label, let value):
-            Toggle(label, isOn: bind(value) { transport.send(id, $0) })
+            Toggle(label, isOn: bind(value) { transport.send(id, bool: $0) })
 
         case .slider(let id, let label, let value, let min, let max, let step):
             VStack(alignment: .leading) {
                 Text(label)
                 Slider(
-                    value: bind(value) { transport.send(id, $0) },
+                    value: bind(value) { transport.send(id, number: $0) },
                     in: min...max, step: step)
             }
 
         case .stepper(let id, let label, let value, let min, let max):
-            Stepper(label, value: bind(value) { transport.send(id, $0) }, in: min...max)
+            Stepper(label, value: bind(value) { transport.send(id, number: $0) }, in: min...max)
 
         case .button(let id, let label, let destructive, let disabled, let confirm):
             Button(label, role: destructive ? .destructive : nil) {
@@ -80,9 +80,12 @@ struct RowView: View {
                 .autocorrectionDisabled()
                 // La saisie reste locale tant qu'elle n'est pas validée :
                 // remonter chaque frappe redessinerait tout l'écran.
-                .onSubmit { transport.send(id, draft) }
-                .onChange(of: draft) { _, new in transport.send(id, new) }
+                // La valeur initiale vient du modèle ; on ne la renvoie
+                // pas, sinon la première apparition déclencherait une action.
                 .onAppear { if draft.isEmpty { draft = value } }
+                .onChange(of: draft) { old, new in
+                    if old != new { transport.send(id, text: new) }
+                }
             }
 
         case .color(let id, let label, let value):
@@ -90,7 +93,7 @@ struct RowView: View {
                 label,
                 selection: Binding(
                     get: { Color(hex: value) },
-                    set: { transport.send(id, $0.hexString) }),
+                    set: { transport.send(id, text: $0.hexString) }),
                 supportsOpacity: false)
 
         case .gauge(let label, let value, let max, let detail):
