@@ -3,9 +3,9 @@ name: App iOS
 on:
   push:
     branches: [master]
-    paths: ["ios/**", "ios-bridge/**", "controller-core/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "app-core/**", "controller-core/**", ".github/workflows/ios.yml"]
   pull_request:
-    paths: ["ios/**", "ios-bridge/**", "controller-core/**"]
+    paths: ["ios/**", "app-core/**", "controller-core/**"]
   workflow_dispatch:
 
 # L'identifiant de l'application. Redéfinissable sans toucher au code par une
@@ -16,7 +16,7 @@ env:
 jobs:
   # Le pont Rust se vérifie sans Mac : autant échouer vite et pour pas cher.
   bridge:
-    name: Pont Rust
+    name: Cœur Rust
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -24,9 +24,9 @@ jobs:
         with:
           targets: aarch64-apple-ios
           components: clippy
-      - run: cargo test -p nexus-bridge -p controller-core
-      - run: cargo clippy -p nexus-bridge --all-targets -- -D warnings
-      - run: cargo check -p nexus-bridge --target aarch64-apple-ios
+      - run: cargo test -p nexus-app-core -p controller-core
+      - run: cargo clippy -p nexus-app-core --all-targets -- -D warnings
+      - run: cargo check -p nexus-app-core --target aarch64-apple-ios
 
   build:
     name: Compilation iOS

@@ -25,15 +25,15 @@ esac
 PROFILE="release"
 [ "${CONFIGURATION:-Release}" = "Debug" ] && PROFILE="debug"
 
-echo "Pont Rust : $TARGET ($PROFILE)"
+echo "Cœur Rust : $TARGET ($PROFILE)"
 rustup target add "$TARGET" >/dev/null 2>&1 || true
 
-FLAGS=(-p nexus-bridge --target "$TARGET")
+FLAGS=(-p nexus-app-core --target "$TARGET")
 [ "$PROFILE" = "release" ] && FLAGS+=(--release)
 
 # Xcode impose un SDKROOT qui perturbe la compilation des build-scripts Rust
 # destinés à la machine hôte : on le neutralise pour cargo.
 env -u SDKROOT -u SDK_DIR cargo build "${FLAGS[@]}" --manifest-path ../Cargo.toml
 
-cp "../target/$TARGET/$PROFILE/libnexus_bridge.a" "$OUT/libnexus_bridge.a"
-echo "  → $OUT/libnexus_bridge.a"
+cp "../target/$TARGET/$PROFILE/libnexus_app_core.a" "$OUT/libnexus_app_core.a"
+echo "  → $OUT/libnexus_app_core.a"

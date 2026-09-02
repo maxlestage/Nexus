@@ -35,10 +35,10 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: false
         # Pont Rust : bibliothèque statique + en-tête C.
         SWIFT_OBJC_BRIDGING_HEADER: Sources/NexusOne-Bridging-Header.h
-        HEADER_SEARCH_PATHS: $(SRCROOT)/../ios-bridge/include
+        HEADER_SEARCH_PATHS: $(SRCROOT)/../app-core/include
         LIBRARY_SEARCH_PATHS: $(SRCROOT)/build/rust
-        OTHER_LDFLAGS: -lnexus_bridge
+        OTHER_LDFLAGS: -lnexus_app_core
     preBuildScripts:
-      - name: Compiler le pont Rust
+      - name: Compiler le cœur Rust
         script: "\"$SRCROOT/scripts/build-rust.sh\""
         basedOnDependencyAnalysis: false
