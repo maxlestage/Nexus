@@ -27,9 +27,9 @@ pour pouvoir ajuster l'ergonomie à la personne, sans impression 3D.
 - ✅ **Switch** : émulation Pro Controller en Bluetooth classique
   (subcommands, calibration, rumble, numéro de joueur)
 - ✅ **PC/macOS** : gamepad HID BLE natif (ZL maintenu à l'allumage)
-- ✅ **App iPhone en Swift** (SwiftUI) : remapping des 2 couches, turbo,
-  macros, LEDs, vibrations, stats, batterie, OTA — le protocole reste en
-  Rust, partagé avec le firmware
+- ✅ **App iPhone** : remapping des 2 couches, turbo, macros, LEDs,
+  vibrations, stats, batterie, OTA. Interface décrite en Rust et rendue par
+  SwiftUI — Swift ne garde que ce qu'Apple impose
 - ✅ **Retour haptique** : DRV2605L — rumble de la console + clics locaux
 - ✅ **RGB** : 8 × WS2812B (fixe, respiration, arc-en-ciel, réaction aux
   appuis) + états (appairage, joueur, batterie faible, OTA)
@@ -46,8 +46,8 @@ pour pouvoir ajuster l'ergonomie à la personne, sans impression 3D.
 |---------|---------|
 | [`controller-core/`](controller-core) | Logique partagée `no_std` : mapping, turbo, macros, stats, protocole Pro Controller, protocole de config — **testée sur PC** (`cargo test`) |
 | [`firmware/`](firmware) | Firmware ESP32 (Rust + ESP-IDF) : Bluetooth, HID, haptique, LEDs, NVS, OTA |
-| [`ios/`](ios) | App iPhone en Swift natif (SwiftUI + CoreBluetooth), publiée sur TestFlight par GitHub Actions |
-| [`ios-bridge/`](ios-bridge) | Pont C : compile `controller-core` pour iOS, pour que l'app ne réimplémente pas le protocole |
+| [`ios/`](ios) | Enveloppe iPhone : CoreBluetooth et rendu SwiftUI du modèle de vue produit par `app-core` |
+| [`app-core/`](app-core) | Cœur de l'app iPhone en Rust : état, actions, libellés et description de l'interface — **21 tests**, sans iPhone |
 | [`web/`](web) | Site mobile-first (React 19 + TypeScript 7, compilé et servi par Bun), déployable sur Heroku |
 | [`docs/BOM.md`](docs/BOM.md) | Liste d'achat (~60–90 €) |
 | [`docs/WIRING.md`](docs/WIRING.md) | Câblage et brochage complet |

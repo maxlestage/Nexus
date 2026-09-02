@@ -4,20 +4,36 @@ Application de configuration de la manette : remappage des deux couches,
 turbo, macros, statistiques, éclairage, vibrations, batterie et mise à jour
 du firmware. SwiftUI + CoreBluetooth.
 
-## Pourquoi Swift, et pourquoi quand même du Rust
+## Ce que fait Swift, et ce qu'il ne fait pas
 
-L'interface est en Swift natif. Mais le **protocole reste en Rust** : le
-crate `ios-bridge/` compile `controller-core` — le code embarqué dans le
-firmware — en bibliothèque statique, et l'expose derrière une petite API C.
+Swift ne garde que les deux responsabilités qu'aucun autre langage ne peut
+assumer sur iOS : **parler à CoreBluetooth** et **dessiner à l'écran**. Tout
+le reste vit dans [`app-core/`](../app-core) : l'état, les actions, les
+libellés français, le protocole, et jusqu'à la description de l'interface.
 
-L'application ne réimplémente donc pas l'encodage `postcard` : elle manipule
-du JSON et laisse Rust produire les octets envoyés en Bluetooth. Firmware et
-application ne peuvent pas diverger, ce qui serait la panne la plus pénible
-à diagnostiquer.
+`app-core` produit un **modèle de vue** en JSON — des sections et des lignes
+typées (sélecteur, interrupteur, curseur, bouton…) — que `RowView.swift`
+traduit mécaniquement en composants SwiftUI. Aucun texte affiché, aucune
+règle d'activation ou de validation ne se trouve dans le code Swift.
 
 ```
-SwiftUI  ──JSON──►  ios-bridge (Rust)  ──postcard──►  BLE  ──►  manette
+        ┌──────────────── app-core (Rust) ────────────────┐
+action  │  état → modèle de vue JSON → protocole postcard │  octets
+   ▲    └─────────────────────────────────────────────────┘     │
+   │                                                            ▼
+SwiftUI (rendu)                                    CoreBluetooth (transport)
 ```
+
+La contrepartie est considérable : **l'interface se teste sans iPhone**.
+`cargo test -p nexus-app-core` vérifie 21 comportements — le bouton d'ajout
+de macro reste inactif sous deux boutons choisis, la bascule turbo modifie
+le bon bit, la progression OTA n'est pas comptée comme une réponse, un
+identifiant de ligne n'apparaît jamais deux fois dans un onglet.
+
+| | lignes |
+|---|---|
+| Rust (`app-core`, tests compris) | ~1 750 |
+| Swift (transport + rendu) | ~780 |
 
 ## Construire
 
@@ -75,9 +91,10 @@ le pont sans toucher au compte Apple.
 
 ## Ce qui est vérifié, et ce qui ne l'est pas
 
-Le pont Rust est testé (`cargo test -p nexus-bridge`), passe clippy en
-`-D warnings` et compile pour `aarch64-apple-ios`. Le workflow rejoue ces
-trois vérifications sur Linux avant même de réserver un runner macOS.
+Le cœur Rust est testé (`cargo test -p nexus-app-core`, 21 tests), passe
+clippy en `-D warnings` et compile pour `aarch64-apple-ios`. Le workflow
+rejoue ces trois vérifications sur Linux avant même de réserver un runner
+macOS.
 
 Le code Swift, lui, n'a jamais été compilé : cela demande un Mac. La
 première exécution du workflow est donc le vrai test — attendez-vous

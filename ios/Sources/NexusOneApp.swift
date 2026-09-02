@@ -2,12 +2,11 @@ import SwiftUI
 
 @main
 struct NexusOneApp: App {
-    @StateObject private var client = ControllerClient()
+    @StateObject private var transport = Transport()
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(client)
+            RootView().environmentObject(transport)
         }
     }
 }

@@ -1,17 +1,18 @@
 [package]
-name = "nexus-bridge"
+name = "nexus-app-core"
 version = "0.1.0"
 edition = "2021"
 authors = ["Maxime Nathan Lestage"]
 license = "MIT"
-description = "Pont C entre controller-core et l'application iOS Swift"
+description = "Toute la logique de l'application iPhone : état, actions, modèle de vue et protocole. Swift ne fait que le Bluetooth et le rendu."
 
 [lib]
-name = "nexus_bridge"
+name = "nexus_app_core"
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]
 controller-core = { path = "../controller-core" }
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 postcard = { version = "1", features = ["use-std"] }
 heapless = { version = "0.8", features = ["serde"] }

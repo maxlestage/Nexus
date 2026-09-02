@@ -104,6 +104,29 @@ pub enum SwitchButton {
 pub const NUM_SWITCH_BUTTONS: usize = 18;
 
 impl SwitchButton {
+    /// Tous les boutons dans l'ordre d'affichage de l'application — à ne pas
+    /// confondre avec l'ordre des variantes, qui donne la position des bits.
+    pub const DISPLAY_ORDER: [SwitchButton; NUM_SWITCH_BUTTONS] = [
+        SwitchButton::A,
+        SwitchButton::B,
+        SwitchButton::X,
+        SwitchButton::Y,
+        SwitchButton::L,
+        SwitchButton::R,
+        SwitchButton::Zl,
+        SwitchButton::Zr,
+        SwitchButton::Plus,
+        SwitchButton::Minus,
+        SwitchButton::LStick,
+        SwitchButton::RStick,
+        SwitchButton::Home,
+        SwitchButton::Capture,
+        SwitchButton::DpadUp,
+        SwitchButton::DpadDown,
+        SwitchButton::DpadLeft,
+        SwitchButton::DpadRight,
+    ];
+
     #[inline]
     pub const fn mask(self) -> u32 {
         1u32 << (self as u8)
