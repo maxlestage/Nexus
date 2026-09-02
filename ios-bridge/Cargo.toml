@@ -1,0 +1,17 @@
+[package]
+name = "nexus-bridge"
+version = "0.1.0"
+edition = "2021"
+authors = ["Maxime Nathan Lestage"]
+license = "MIT"
+description = "Pont C entre controller-core et l'application iOS Swift"
+
+[lib]
+name = "nexus_bridge"
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+controller-core = { path = "../controller-core" }
+serde_json = "1"
+postcard = { version = "1", features = ["use-std"] }
+heapless = { version = "0.8", features = ["serde"] }

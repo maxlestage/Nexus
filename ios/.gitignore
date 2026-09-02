@@ -1,0 +1,7 @@
+NexusOne.xcodeproj/
+build/
+DerivedData/
+fastlane/report.xml
+fastlane/Preview.html
+*.ipa
+*.dSYM.zip
