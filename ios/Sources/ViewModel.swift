@@ -12,7 +12,7 @@ struct ViewModel: Decodable {
 
 enum Screen: Decodable {
     case connect(title: String, message: String, action: Row?, spinner: Bool)
-    case tabs([Tab])
+    case tabs([TabModel])
 
     private enum CodingKeys: String, CodingKey {
         case kind, title, message, action, spinner, tabs
@@ -28,7 +28,7 @@ enum Screen: Decodable {
                 action: try c.decodeIfPresent(Row.self, forKey: .action),
                 spinner: try c.decode(Bool.self, forKey: .spinner))
         case "tabs":
-            self = .tabs(try c.decode([Tab].self, forKey: .tabs))
+            self = .tabs(try c.decode([TabModel].self, forKey: .tabs))
         case let other:
             throw DecodingError.dataCorruptedError(
                 forKey: .kind, in: c, debugDescription: "écran inconnu : \(other)")
@@ -36,15 +36,15 @@ enum Screen: Decodable {
     }
 }
 
-struct Tab: Decodable, Identifiable {
+struct TabModel: Decodable, Identifiable {
     let id: String
     let title: String
     let icon: String
     let selected: Bool
-    let sections: [Section]
+    let sections: [FormSection]
 }
 
-struct Section: Decodable, Identifiable {
+struct FormSection: Decodable, Identifiable {
     let header: String?
     let footer: String?
     let rows: [Row]

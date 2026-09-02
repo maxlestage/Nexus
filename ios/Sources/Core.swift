@@ -48,15 +48,10 @@ final class Core {
         }
     }
 
-    /// Transmet une action. `value` est encodé en JSON ; `nil` pour un bouton.
-    func dispatch(_ id: String, _ value: (any Encodable)? = nil) {
+    /// Transmet une action. `json` porte la valeur ; vide pour un bouton.
+    func dispatch(_ id: String, json: String = "") {
         let idBytes = Array(id.utf8)
-        let valueBytes: [UInt8]
-        if let value {
-            valueBytes = (try? Array(JSONEncoder().encode(AnyEncodable(value)))) ?? []
-        } else {
-            valueBytes = []
-        }
+        let valueBytes = Array(json.utf8)
         _ = idBytes.withUnsafeBufferPointer { idPtr in
             valueBytes.withUnsafeBufferPointer { valuePtr in
                 nexus_app_dispatch(
@@ -90,22 +85,37 @@ final class Core {
         bytes { nexus_app_take_outgoing(handle, $0, $1) }
     }
 
-    // MARK: Identifiants du service
+}
 
-    private static func uuid(_ body: (UnsafeMutablePointer<UInt8>, Int) -> Int) -> String {
+/// Identifiants du service BLE, lus depuis Rust plutôt que recopiés : une
+/// divergence resterait invisible jusqu'à ce que la manette soit introuvable.
+/// Hors de `Core`, qui est cantonné au fil principal.
+enum CoreUUIDs {
+    private static func read(_ body: (UnsafeMutablePointer<UInt8>, Int) -> Int) -> String {
         var buf = [UInt8](repeating: 0, count: 64)
         let n = buf.withUnsafeMutableBufferPointer { body($0.baseAddress!, $0.count) }
         return n > 0 ? String(decoding: buf[0..<n], as: UTF8.self) : ""
     }
 
-    static let serviceUUID = uuid { nexus_service_uuid($0, $1) }
-    static let rxCharUUID = uuid { nexus_rx_char_uuid($0, $1) }
-    static let txCharUUID = uuid { nexus_tx_char_uuid($0, $1) }
+    static let service = read { nexus_service_uuid($0, $1) }
+    static let rx = read { nexus_rx_char_uuid($0, $1) }
+    static let tx = read { nexus_tx_char_uuid($0, $1) }
 }
 
-/// Efface le type concret pour encoder n'importe quelle valeur d'action.
-private struct AnyEncodable: Encodable {
-    private let encode: (Encoder) throws -> Void
-    init(_ wrapped: any Encodable) { encode = wrapped.encode }
-    func encode(to encoder: Encoder) throws { try encode(encoder) }
+/// Encodage JSON des valeurs d'action, sans passer par `Codable` : les
+/// quatre formes utilisées par le modèle de vue suffisent.
+enum ActionValue {
+    static func text(_ value: String) -> String {
+        let escaped = value
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\t", with: "\\t")
+            .replacingOccurrences(of: "\r", with: "\\r")
+        return "\"\(escaped)\""
+    }
+
+    static func bool(_ value: Bool) -> String { value ? "true" : "false" }
+    static func number(_ value: Double) -> String { String(value) }
+    static func number(_ value: Int) -> String { String(value) }
 }
