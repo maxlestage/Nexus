@@ -77,9 +77,14 @@ job échoue.
 
 ### Identifiant de l'application
 
-Par défaut `com.maximelestage.nexusone`. Pour en utiliser un autre, définir
+Par défaut `com.maxlestage.nexusone`. Pour en utiliser un autre, définir
 une **variable** de dépôt `BUNDLE_ID` (Settings → Secrets and variables →
 Actions → Variables) : elle alimente à la fois le projet Xcode et fastlane.
+
+Il n'y a rien à enregistrer côté portail développeur : la signature
+automatique de Xcode crée l'identifiant à la première compilation signée
+(`-allowProvisioningUpdates`). Le message d'échec de la CI indique de toute
+façon s'il est présent ou non.
 
 ### Créer la fiche sur App Store Connect
 
@@ -100,8 +105,8 @@ Dans ce cas, sur https://appstoreconnect.apple.com → Apps → « + » :
 | Plateformes | iOS |
 | Nom | Nexus One (ou tout autre nom libre sur l'App Store) |
 | Langue principale | Français |
-| ID de package | `com.maximelestage.nexusone` |
-| SKU | `com.maximelestage.nexusone` |
+| ID de package | `com.maxlestage.nexusone` |
+| SKU | `com.maxlestage.nexusone` |
 
 Puis relancer le workflow (Actions → App iOS → Run workflow). Tout le reste
 est automatique.

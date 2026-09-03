@@ -11,7 +11,7 @@ on:
 # L'identifiant de l'application. Redéfinissable sans toucher au code par une
 # variable de dépôt (Settings → Secrets and variables → Actions → Variables).
 env:
-  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.maximelestage.nexusone' }}
+  BUNDLE_ID: ${{ vars.BUNDLE_ID || 'com.maxlestage.nexusone' }}
 
 jobs:
   # Le pont Rust se vérifie sans Mac : autant échouer vite et pour pas cher.
