@@ -121,7 +121,10 @@ jobs:
       - name: Effacer la clé
         if: always()
         working-directory: ios
-        run: rm -f build/asc_key.p8
+        run: |
+          rm -f build/asc_key.p8
+          # altool exige une copie de la clé dans le dossier de l'utilisateur.
+          rm -rf ~/.appstoreconnect/private_keys
 
       # « always() » est indispensable : sans fonction d'état, GitHub sous-entend
       # success(), et l'IPA — pourtant bien produit — n'était pas conservé quand
