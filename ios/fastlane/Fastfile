@@ -6,6 +6,7 @@
 # certificat et le profil grâce à cette clé (-allowProvisioningUpdates).
 
 require "shellwords"
+require "fileutils"
 
 default_platform(:ios)
 
@@ -59,7 +60,13 @@ platform :ios do
     # Vérifiée après la compilation, et non avant : tant que la fiche manque,
     # le run échoue de toute façon — autant qu'il prouve d'abord que le projet
     # compile et qu'il dépose l'IPA en artefact.
-    ensure_app_record(key_path, app_identifier)
+    unless ensure_app_record(key_path, app_identifier)
+      # Dernier chemin non exploré : le service de dépôt d'Apple n'est pas
+      # l'API App Store Connect. C'est lui, et non fastlane, qui décide
+      # d'accepter un binaire. On lui pose donc directement la question.
+      direct_upload(app_identifier)
+      next
+    end
 
     upload_to_testflight(
       api_key: api_key,
@@ -110,7 +117,7 @@ def ensure_app_record(key_path, app_identifier)
   existing = Spaceship::ConnectAPI::App.find(app_identifier)
   if existing
     UI.success("Fiche « #{app_identifier} » déjà présente (#{existing.id}).")
-    return
+    return true
   end
 
   last_error = nil
@@ -127,13 +134,13 @@ def ensure_app_record(key_path, app_identifier)
       )
       UI.success("Fiche « #{name} » créée sur App Store Connect (#{app.id}).")
       wait_until_listed(app_identifier)
-      return
+      return true
     rescue StandardError => e
       last_error = e
 
       # Apple refuse la création aux clés qui n'ont pas le rôle voulu. Ce
       # n'est pas une question de nom : inutile d'essayer les suivants.
-      raise_manual_creation_needed(app_identifier, e) if e.message.include?("does not allow 'CREATE'")
+      return false if e.message.include?("does not allow 'CREATE'")
 
       UI.important("Nom « #{name} » refusé : #{e.message.lines.first.to_s.strip}")
     end
@@ -149,23 +156,62 @@ def ensure_app_record(key_path, app_identifier)
   MSG
 end
 
-# La création d'une fiche par l'API n'est ouverte qu'aux clés App Store
-# Connect ayant un rôle suffisant. La clé de ce dépôt ne l'a pas : c'est la
-# seule étape que la CI ne peut pas faire à votre place.
-def raise_manual_creation_needed(app_identifier, error)
+# Dépôt direct du binaire, sans passer par l'API App Store Connect.
+#
+# altool s'adresse au service de livraison d'Apple, qui est un autre système :
+# c'est lui qui accepte ou refuse un binaire. Rien ne dit a priori qu'il exige
+# la même fiche que l'API. Tant que la question n'a pas été posée à Apple, on
+# ne peut pas conclure — alors on la pose.
+def direct_upload(app_identifier)
+  key_id = ENV.fetch("ASC_KEY_ID")
+  issuer = ENV.fetch("ASC_ISSUER_ID")
+
+  # altool cherche la clé sous un nom imposé, dans un dossier imposé.
+  keys_dir = File.join(Dir.home, ".appstoreconnect", "private_keys")
+  FileUtils.mkdir_p(keys_dir)
+  installed_key = File.join(keys_dir, "AuthKey_#{key_id}.p8")
+  FileUtils.cp(File.expand_path("../build/asc_key.p8", __dir__), installed_key)
+  FileUtils.chmod(0o600, installed_key)
+
+  UI.important("Fiche absente. Tentative de dépôt direct auprès du service de livraison d'Apple.")
+
+  begin
+    command = [
+      "xcrun altool --upload-app",
+      "-f build/NexusOne.ipa",
+      "-t ios",
+      "--apiKey #{key_id.shellescape}",
+      "--apiIssuer #{issuer.shellescape}"
+    ].join(" ")
+
+    output = `#{command} 2>&1`
+    succeeded = $?.success?
+  ensure
+    FileUtils.rm_f(installed_key)
+  end
+
+  UI.message(output.to_s.strip)
+
+  if succeeded
+    UI.success("Binaire accepté par Apple. La version apparaîtra dans TestFlight après traitement.")
+    return
+  end
+
+  raise_manual_creation_needed(app_identifier, output.to_s)
+end
+
+# Seule issue restante quand ni l'API ni le dépôt direct n'acceptent le
+# binaire : la fiche doit être créée depuis le site.
+def raise_manual_creation_needed(app_identifier, delivery_output)
   UI.user_error!(<<~MSG)
-    L'API publique App Store Connect ne sait pas créer une fiche
-    d'application. Réponse d'Apple :
+    Les deux chemins possibles ont été essayés et refusés par Apple.
 
-      #{error.message.lines.first.to_s.strip}
+    1. Création par l'API App Store Connect :
+       la ressource « apps » n'accepte que GET et UPDATE — la documentation
+       d'Apple ne décrit aucune opération de création.
 
-    Ce n'est pas une question de rôle : changer de clé n'y changerait rien.
-    Une clé API parle à api.appstoreconnect.apple.com, où la ressource
-    « apps » est en lecture et mise à jour seulement. La création n'existe
-    que sur l'API interne du site, qui exige une session Apple ID.
-
-    C'est donc la seule étape manuelle du projet, et elle ne se fait qu'une
-    fois.
+    2. Dépôt direct du binaire (altool), réponse du service de livraison :
+       #{delivery_excerpt(delivery_output)}
 
     #{account_summary(app_identifier)}
 
@@ -176,23 +222,16 @@ def raise_manual_creation_needed(app_identifier, error)
       ID de package ...... #{app_identifier}
       SKU ................ #{app_identifier}
 
-    Relancez ensuite ce workflow (onglet Actions → App iOS → Run workflow) :
-    tout le reste est automatique, la version partira sur TestFlight.
+    Relancez ensuite ce workflow : tout le reste est automatique.
   MSG
 end
 
-# App Store Connect met quelques secondes à référencer une fiche neuve. On
-# n'échoue pas si elle tarde : la compilation qui suit dure plus longtemps
-# que cette attente, et laisse donc à Apple le temps de suivre.
-def wait_until_listed(app_identifier, attempts: 10, delay: 6)
-  attempts.times do
-    return if Spaceship::ConnectAPI::App.find(app_identifier)
-
-    UI.message("La fiche n'est pas encore listée, nouvelle tentative…")
-    sleep(delay)
-  end
-
-  UI.important("Fiche toujours pas listée ; on continue, la compilation laisse du temps à Apple.")
+# Retient les lignes qui portent le refus, ou à défaut la fin de la sortie :
+# altool est bavard, et le motif exact varie d'une version à l'autre.
+def delivery_excerpt(output)
+  lines = output.to_s.lines.map(&:strip).reject(&:empty?)
+  errors = lines.grep(/error|ERROR|\*\*\*/i)
+  (errors.empty? ? lines.last(4) : errors.first(4)).join("\n       ")
 end
 
 # Décrit l'état réel du compte pour que le formulaire d'App Store Connect ne
