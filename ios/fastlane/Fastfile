@@ -40,7 +40,7 @@ platform :ios do
     # particulière du projet.
     build_number = ENV.fetch("GITHUB_RUN_NUMBER", Time.now.to_i.to_s)
 
-    build_app(
+    ipa_path = build_app(
       project: "NexusOne.xcodeproj",
       scheme: "NexusOne",
       configuration: "Release",
@@ -64,13 +64,13 @@ platform :ios do
       # Dernier chemin non exploré : le service de dépôt d'Apple n'est pas
       # l'API App Store Connect. C'est lui, et non fastlane, qui décide
       # d'accepter un binaire. On lui pose donc directement la question.
-      direct_upload(app_identifier)
+      direct_upload(app_identifier, ipa_path)
       next
     end
 
     upload_to_testflight(
       api_key: api_key,
-      ipa: "build/NexusOne.ipa",
+      ipa: ipa_path,
       skip_waiting_for_build_processing: true,
       changelog: ENV.fetch("CHANGELOG", "").lines.first.to_s.strip
         .then { |line| line.empty? ? "Build automatique depuis GitHub Actions." : line }
@@ -162,7 +162,7 @@ end
 # c'est lui qui accepte ou refuse un binaire. Rien ne dit a priori qu'il exige
 # la même fiche que l'API. Tant que la question n'a pas été posée à Apple, on
 # ne peut pas conclure — alors on la pose.
-def direct_upload(app_identifier)
+def direct_upload(app_identifier, ipa_path)
   key_id = ENV.fetch("ASC_KEY_ID")
   issuer = ENV.fetch("ASC_ISSUER_ID")
 
@@ -175,10 +175,17 @@ def direct_upload(app_identifier)
 
   UI.important("Fiche absente. Tentative de dépôt direct auprès du service de livraison d'Apple.")
 
+  # Chemin absolu : le répertoire courant de fastlane n'est pas celui qu'on
+  # croit, et altool avait échoué sur un « file cannot be found » avant même
+  # de contacter Apple — l'essai précédent ne prouvait donc rien.
+  ipa = File.expand_path(ipa_path.to_s)
+  UI.user_error!("IPA introuvable : #{ipa}") unless File.exist?(ipa)
+  UI.message("Binaire à déposer : #{ipa} (#{File.size(ipa)} octets)")
+
   begin
     command = [
       "xcrun altool --upload-app",
-      "-f build/NexusOne.ipa",
+      "-f #{ipa.shellescape}",
       "-t ios",
       "--apiKey #{key_id.shellescape}",
       "--apiIssuer #{issuer.shellescape}"
