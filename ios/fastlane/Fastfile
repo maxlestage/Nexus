@@ -65,7 +65,8 @@ platform :ios do
       api_key: api_key,
       ipa: "build/NexusOne.ipa",
       skip_waiting_for_build_processing: true,
-      changelog: ENV.fetch("CHANGELOG", "Build automatique depuis GitHub Actions.")
+      changelog: ENV.fetch("CHANGELOG", "").lines.first.to_s.strip
+        .then { |line| line.empty? ? "Build automatique depuis GitHub Actions." : line }
     )
   end
 
