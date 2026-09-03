@@ -167,16 +167,14 @@ def raise_manual_creation_needed(app_identifier, error)
     C'est donc la seule étape manuelle du projet, et elle ne se fait qu'une
     fois.
 
+    #{account_summary(app_identifier)}
+
     Sur https://appstoreconnect.apple.com → Apps → « + » → Nouvelle app :
       Plateformes ........ iOS
       Nom ................ Nexus One  (ou tout autre nom libre)
       Langue principale .. Français
       ID de package ...... #{app_identifier}
       SKU ................ #{app_identifier}
-
-    Si l'ID de package n'apparaît pas dans la liste, c'est qu'il faut
-    d'abord l'enregistrer sur https://developer.apple.com/account/resources/
-    identifiers — la compilation de ce workflow l'a normalement déjà fait.
 
     Relancez ensuite ce workflow (onglet Actions → App iOS → Run workflow) :
     tout le reste est automatique, la version partira sur TestFlight.
@@ -195,4 +193,45 @@ def wait_until_listed(app_identifier, attempts: 10, delay: 6)
   end
 
   UI.important("Fiche toujours pas listée ; on continue, la compilation laisse du temps à Apple.")
+end
+
+# Décrit l'état réel du compte pour que le formulaire d'App Store Connect ne
+# réserve aucune surprise : l'identifiant attendu figure-t-il bien dans la
+# liste déroulante, et une fiche existe-t-elle déjà sous un autre nom ?
+#
+# Lecture seule : GET est la seule opération que l'API publique autorise ici.
+def account_summary(app_identifier)
+  lines = []
+
+  begin
+    ids = Spaceship::ConnectAPI::BundleId.all.map(&:identifier)
+    if ids.include?(app_identifier)
+      lines << "L'identifiant #{app_identifier} est bien enregistré : il"
+      lines << "apparaîtra dans la liste « ID de package » du formulaire."
+    else
+      lines << "L'identifiant #{app_identifier} n'est PAS encore enregistré."
+      lines << "Créez-le d'abord sur :"
+      lines << "  https://developer.apple.com/account/resources/identifiers"
+      lines << "Identifiants présents : #{ids.empty? ? 'aucun' : ids.join(', ')}"
+    end
+  rescue StandardError => e
+    lines << "Liste des identifiants illisible : #{e.message.lines.first.to_s.strip}"
+  end
+
+  begin
+    apps = Spaceship::ConnectAPI::App.all
+    lines << ""
+    if apps.empty?
+      lines << "Aucune fiche n'existe encore sur ce compte."
+    else
+      lines << "Fiches déjà présentes sur le compte :"
+      apps.each { |a| lines << "  #{a.name} — #{a.bundle_id}" }
+      lines << "Si l'une d'elles est la bonne, définissez plutôt la variable"
+      lines << "de dépôt BUNDLE_ID avec son identifiant."
+    end
+  rescue StandardError => e
+    lines << "Liste des fiches illisible : #{e.message.lines.first.to_s.strip}"
+  end
+
+  lines.join("\n")
 end
