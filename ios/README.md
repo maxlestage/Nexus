@@ -84,8 +84,9 @@ Actions → Variables) : elle alimente à la fois le projet Xcode et fastlane.
 ### Créer la fiche sur App Store Connect
 
 C'est **la seule étape manuelle du projet**, et elle ne se fait qu'une fois.
-La CI tente de créer la fiche elle-même, mais Apple ne l'autorise qu'aux
-clés ayant un rôle suffisant ; sinon elle répond :
+La CI tente de créer la fiche elle-même, mais l'API publique App Store
+Connect ne sait pas le faire — quelle que soit la clé, quel que soit son
+rôle. Elle répond :
 
 ```
 The resource 'apps' does not allow 'CREATE'.
@@ -104,6 +105,13 @@ Dans ce cas, sur https://appstoreconnect.apple.com → Apps → « + » :
 
 Puis relancer le workflow (Actions → App iOS → Run workflow). Tout le reste
 est automatique.
+
+Pourquoi cette limite : une clé API s'adresse à `api.appstoreconnect.apple.com`,
+où la ressource `apps` est en lecture et mise à jour seulement. La création
+n'existe que sur `appstoreconnect.apple.com/iris/`, l'API interne du site,
+qui exige une session Apple ID complète — identifiant, mot de passe et
+double authentification. C'est d'ailleurs pourquoi l'action `produce` de
+fastlane n'accepte aucune option de clé API.
 
 Sans secrets — sur une pull request, ou avant leur configuration — le
 workflow se contente d'une compilation non signée : elle valide le Swift et

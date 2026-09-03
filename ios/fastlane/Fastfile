@@ -34,8 +34,6 @@ platform :ios do
       in_house: false
     )
 
-    ensure_app_record(key_path, app_identifier)
-
     # Numéro de build unique et croissant. Passé en réglage xcodebuild
     # plutôt que par agvtool, qui exige une configuration de versionnage
     # particulière du projet.
@@ -57,6 +55,11 @@ platform :ios do
         "-authenticationKeyIssuerID", ENV.fetch("ASC_ISSUER_ID").shellescape
       ].join(" ")
     )
+
+    # Vérifiée après la compilation, et non avant : tant que la fiche manque,
+    # le run échoue de toute façon — autant qu'il prouve d'abord que le projet
+    # compile et qu'il dépose l'IPA en artefact.
+    ensure_app_record(key_path, app_identifier)
 
     upload_to_testflight(
       api_key: api_key,
@@ -150,12 +153,18 @@ end
 # seule étape que la CI ne peut pas faire à votre place.
 def raise_manual_creation_needed(app_identifier, error)
   UI.user_error!(<<~MSG)
-    La clé App Store Connect n'a pas le droit de créer une fiche
+    L'API publique App Store Connect ne sait pas créer une fiche
     d'application. Réponse d'Apple :
 
       #{error.message.lines.first.to_s.strip}
 
-    C'est la seule étape manuelle du projet, et elle ne se fait qu'une fois.
+    Ce n'est pas une question de rôle : changer de clé n'y changerait rien.
+    Une clé API parle à api.appstoreconnect.apple.com, où la ressource
+    « apps » est en lecture et mise à jour seulement. La création n'existe
+    que sur l'API interne du site, qui exige une session Apple ID.
+
+    C'est donc la seule étape manuelle du projet, et elle ne se fait qu'une
+    fois.
 
     Sur https://appstoreconnect.apple.com → Apps → « + » → Nouvelle app :
       Plateformes ........ iOS
