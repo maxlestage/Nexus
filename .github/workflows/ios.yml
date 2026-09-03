@@ -105,6 +105,19 @@ jobs:
           APP_NAME: ${{ vars.APP_NAME }}
         run: fastlane beta
 
+      # Les réglages Info.plist ne se vérifient que sur le produit compilé.
+      # Sans cette trace, une clé ignorée par Xcode ne se voit qu'une fois la
+      # version arrivée — ou bloquée — dans TestFlight.
+      - name: Relire l'Info.plist compilé
+        if: always()
+        run: |
+          APP="$(find ~/Library/Developer/Xcode/Archives -name NexusOne.app -type d 2>/dev/null | head -1)"
+          if [ -z "$APP" ]; then
+            echo "Aucune archive : la compilation n'a pas abouti."
+            exit 0
+          fi
+          plutil -p "$APP/Info.plist"
+
       - name: Effacer la clé
         if: always()
         working-directory: ios
