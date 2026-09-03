@@ -2,7 +2,7 @@
 # Le .xcodeproj n'est pas versionné : il se régénère à partir de ce fichier.
 name: NexusOne
 options:
-  bundleIdPrefix: com.maximelestage
+  bundleIdPrefix: com.maxlestage
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
