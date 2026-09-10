@@ -44,9 +44,6 @@ jobs:
           targets: aarch64-apple-ios,aarch64-apple-ios-sim
       - uses: Swatinem/rust-cache@v2
 
-      - name: Installer XcodeGen
-        run: brew install xcodegen
-
       - name: Déposer la clé App Store Connect
         if: env.HAS_ASC_KEY == 'true'
         working-directory: ios
@@ -76,14 +73,6 @@ jobs:
           fi
           echo "DEVELOPMENT_TEAM=$TEAM" >> "$GITHUB_ENV"
           echo "Team ID retenu : $TEAM"
-
-      - name: Générer le projet Xcode
-        working-directory: ios
-        run: |
-          # Défini même sans clé (compilation non signée) : XcodeGen exige
-          # que la variable existe.
-          export DEVELOPMENT_TEAM="${DEVELOPMENT_TEAM:-}"
-          xcodegen generate
 
       # Sans clé (pull request, fork, secrets absents), on s'arrête à une
       # compilation non signée : elle valide le Swift et le pont Rust sans

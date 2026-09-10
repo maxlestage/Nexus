@@ -65,7 +65,7 @@ cargo test -p controller-core
 cd firmware && cargo run --release
 
 # App iPhone (voir ios/README.md — nécessite un Mac)
-cd ios && xcodegen generate && fastlane check
+cd ios && fastlane check
 
 # Site (Bun uniquement — voir web/README.md)
 bun install && bun run build && bun run start
