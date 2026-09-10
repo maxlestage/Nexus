@@ -37,14 +37,20 @@ identifiant de ligne n'apparaît jamais deux fois dans un onglet.
 
 ## Construire
 
-Le `.xcodeproj` n'est pas versionné, il se génère :
+Le projet Xcode est versionné : rien à générer, rien à installer.
 
 ```bash
-brew install xcodegen
-cd ios
-DEVELOPMENT_TEAM=VOTRE_TEAM_ID xcodegen generate
-open NexusOne.xcodeproj
+open ios/NexusOne.xcodeproj
 ```
+
+L'identifiant `com.maxlestage.nexusone` et le Team ID `2FW8T4UX4L` y sont
+inscrits comme valeurs par défaut, pour que le projet s'ouvre et compile tel
+quel. La CI les remplace au besoin par la variable de dépôt `BUNDLE_ID` et
+par le Team ID déduit de la clé App Store Connect, en les passant à
+`xcodebuild` — le fichier du dépôt n'est jamais modifié pour cela.
+
+Le schéma `NexusOne` est partagé, donc `xcodebuild -scheme NexusOne`
+fonctionne sur une machine qui n'a jamais ouvert le projet.
 
 La compilation du pont Rust est automatique (script exécuté avant chaque
 build). Depuis la ligne de commande :

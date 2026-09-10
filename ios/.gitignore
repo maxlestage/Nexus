@@ -1,4 +1,7 @@
-NexusOne.xcodeproj/
+# Le projet Xcode est versionné : seuls les réglages propres à chaque
+# utilisateur en sont exclus.
+NexusOne.xcodeproj/xcuserdata/
+NexusOne.xcodeproj/project.xcworkspace/xcuserdata/
 build/
 DerivedData/
 fastlane/report.xml
