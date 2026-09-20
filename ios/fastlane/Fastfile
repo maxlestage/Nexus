@@ -16,7 +16,7 @@ default_platform(:ios)
 # APP_NAME court-circuite la liste.
 APP_NAME_CANDIDATES = [
   ENV["APP_NAME"],
-  "Nexus One",
+  "Nexus One ‣",
   "Nexus One Manette",
   "Manette Nexus One"
 ].compact.reject(&:empty?).freeze
@@ -243,7 +243,7 @@ def raise_manual_creation_needed(app_identifier, delivery_output)
 
     Sur https://appstoreconnect.apple.com → Apps → « + » → Nouvelle app :
       Plateformes ........ iOS
-      Nom ................ Nexus One  (ou tout autre nom libre)
+      Nom ................ Nexus One ‣  (ou tout autre nom libre)
       Langue principale .. Français
       ID de package ...... #{app_identifier}
       SKU ................ #{app_identifier}

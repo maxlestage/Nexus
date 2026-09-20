@@ -109,7 +109,7 @@ Dans ce cas, sur https://appstoreconnect.apple.com → Apps → « + » :
 | Champ | Valeur |
 |---|---|
 | Plateformes | iOS |
-| Nom | Nexus One (ou tout autre nom libre sur l'App Store) |
+| Nom | Nexus One ‣ (ou tout autre nom libre sur l'App Store) |
 | Langue principale | Français |
 | ID de package | `com.maxlestage.nexusone` |
 | SKU | `com.maxlestage.nexusone` |
