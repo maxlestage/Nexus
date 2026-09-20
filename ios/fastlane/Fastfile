@@ -41,8 +41,8 @@ platform :ios do
     build_number = ENV.fetch("GITHUB_RUN_NUMBER", Time.now.to_i.to_s)
 
     ipa_path = build_app(
-      project: "NexusOne.xcodeproj",
-      scheme: "NexusOne",
+      project: "Nexus One ‣.xcodeproj",
+      scheme: "Nexus One ‣",
       configuration: "Release",
       export_method: "app-store",
       output_directory: "build",
@@ -75,8 +75,8 @@ platform :ios do
   lane :check do
     bundle_id = ENV.fetch("BUNDLE_ID", "com.maxlestage.nexusone")
     xcodebuild(
-      project: "NexusOne.xcodeproj",
-      scheme: "NexusOne",
+      project: "Nexus One ‣.xcodeproj",
+      scheme: "Nexus One ‣",
       configuration: "Debug",
       destination: "generic/platform=iOS Simulator",
       xcargs: "PRODUCT_BUNDLE_IDENTIFIER=#{bundle_id.shellescape} CODE_SIGNING_ALLOWED=NO build"

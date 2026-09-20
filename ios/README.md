@@ -40,7 +40,7 @@ identifiant de ligne n'apparaît jamais deux fois dans un onglet.
 Le projet Xcode est versionné : rien à générer, rien à installer.
 
 ```bash
-open ios/NexusOne.xcodeproj
+open "ios/Nexus One ‣.xcodeproj"
 ```
 
 L'identifiant `com.maxlestage.nexusone` et le Team ID `2FW8T4UX4L` y sont
@@ -49,7 +49,7 @@ quel. La CI les remplace au besoin par la variable de dépôt `BUNDLE_ID` et
 par le Team ID déduit de la clé App Store Connect, en les passant à
 `xcodebuild` — le fichier du dépôt n'est jamais modifié pour cela.
 
-Le schéma `NexusOne` est partagé, donc `xcodebuild -scheme NexusOne`
+Le schéma `Nexus One ‣` est partagé, donc `xcodebuild -scheme "Nexus One ‣"`
 fonctionne sur une machine qui n'a jamais ouvert le projet.
 
 La compilation du pont Rust est automatique (script exécuté avant chaque

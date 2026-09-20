@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "000000075441524745543030"
                BuildableName = "NexusOne.app"
-               BlueprintName = "NexusOne"
-               ReferencedContainer = "container:NexusOne.xcodeproj">
+               BlueprintName = "Nexus One ‣"
+               ReferencedContainer = "container:Nexus One ‣.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,8 +46,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "000000075441524745543030"
                BuildableName = "NexusOne.app"
-               BlueprintName = "NexusOne"
-               ReferencedContainer = "container:NexusOne.xcodeproj">
+               BlueprintName = "Nexus One ‣"
+               ReferencedContainer = "container:Nexus One ‣.xcodeproj">
             </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,8 +63,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "000000075441524745543030"
                BuildableName = "NexusOne.app"
-               BlueprintName = "NexusOne"
-               ReferencedContainer = "container:NexusOne.xcodeproj">
+               BlueprintName = "Nexus One ‣"
+               ReferencedContainer = "container:Nexus One ‣.xcodeproj">
             </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

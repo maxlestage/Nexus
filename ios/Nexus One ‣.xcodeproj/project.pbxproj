@@ -89,9 +89,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		000000075441524745543030 /* NexusOne */ = {
+		000000075441524745543030 /* Nexus One ‣ */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00000010434C544754303030 /* Build configuration list for PBXNativeTarget "NexusOne" */;
+			buildConfigurationList = 00000010434C544754303030 /* Build configuration list for PBXNativeTarget "Nexus One ‣" */;
 			buildPhases = (
 				0000000B5048534352495054 /* Compiler le cœur Rust */,
 				0000000C5048535243303030 /* Sources */,
@@ -102,7 +102,7 @@
 			);
 			dependencies = (
 			);
-			name = NexusOne;
+			name = "Nexus One ‣";
 			productName = NexusOne;
 			productReference = 0000000850524F4455435430 /* NexusOne.app */;
 			productType = "com.apple.product-type.application";
@@ -122,7 +122,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0000000F434C50524A303030 /* Build configuration list for PBXProject "NexusOne" */;
+			buildConfigurationList = 0000000F434C50524A303030 /* Build configuration list for PBXProject "Nexus One ‣" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -135,7 +135,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				000000075441524745543030 /* NexusOne */,
+				000000075441524745543030 /* Nexus One ‣ */,
 			);
 		};
 /* End PBXProject section */
@@ -255,7 +255,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/build/rust";
 				OTHER_LDFLAGS = "-lnexus_app_core";
 				PRODUCT_BUNDLE_IDENTIFIER = com.maxlestage.nexusone;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = NexusOne;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/NexusOne-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -277,7 +277,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/build/rust";
 				OTHER_LDFLAGS = "-lnexus_app_core";
 				PRODUCT_BUNDLE_IDENTIFIER = com.maxlestage.nexusone;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = NexusOne;
 				SWIFT_OBJC_BRIDGING_HEADER = "Sources/NexusOne-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -286,7 +286,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0000000F434C50524A303030 /* Build configuration list for PBXProject "NexusOne" */ = {
+		0000000F434C50524A303030 /* Build configuration list for PBXProject "Nexus One ‣" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				000000114346475044303030 /* Debug */,
@@ -295,7 +295,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		00000010434C544754303030 /* Build configuration list for PBXNativeTarget "NexusOne" */ = {
+		00000010434C544754303030 /* Build configuration list for PBXNativeTarget "Nexus One ‣" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				000000134346475444303030 /* Debug */,
